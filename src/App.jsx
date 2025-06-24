@@ -669,7 +669,7 @@ function PomodoroTimer() {
       </audio>
       
       <header className="timer-header">
-        <h1 className="timer-title">ADHD Focus Timer</h1>
+        <h1 className="timer-title">DopaFlow</h1>
         <div className="timer-state" aria-live="polite">
           {STATE_LABELS[currentState]}
         </div>

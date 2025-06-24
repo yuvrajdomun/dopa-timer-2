@@ -1,7 +1,7 @@
 {
-  "name": "ADHD Focus Timer - Neurodivergent-Friendly Pomodoro",
-  "short_name": "ADHD Focus Timer",
-  "description": "A beautiful, ADHD-friendly Pomodoro timer designed for neurodivergent minds. Features ultra-low-stim design, micro-sprints, and accessibility-first approach.",
+  "name": "DopaFlow - ADHD Focus Timer for Neurodivergent Minds",
+  "short_name": "DopaFlow",
+  "description": "DopaFlow is a beautiful, ADHD-friendly Pomodoro timer designed for neurodivergent minds. Features ultra-low-stim design, micro-sprints, and accessibility-first approach.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f3f7f8",

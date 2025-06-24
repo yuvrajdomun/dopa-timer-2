@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://adhd-focus-timer.vercel.app/sitemap.xml
+Sitemap: https://www.dopaflow.io/sitemap.xml
 
 # Allow all search engines to index
 User-agent: Googlebot
