@@ -1,0 +1,122 @@
+/* ADHD & Autism-Friendly Pomodoro Timer Styles */
+
+:root {
+  /* Sea Glass Palette (Default) */
+  --clr-background: #f1f6f7;
+  --clr-surface: #e0eceb;
+  --clr-text-primary: #42545a;
+  --clr-accent: #6fa8a8;
+  --clr-progress-ring: #4a6d7c;
+  --clr-alert: #f5c48f;
+
+  /* Timer State Colors */
+  --clr-work: #4a6d7c;
+  --clr-short-break: #5d7160;
+  --clr-long-break: #8078b8;
+
+  /* Typography */
+  --font-family: Inter, "Helvetica Neue", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", system-ui, sans-serif;
+  --font-size-base: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 32px;
+  --font-size-3xl: 40px;
+  --font-size-timer: 64px;
+  --line-height-base: 1.5;
+
+  /* Spacing (8pt grid) */
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+
+  /* Animation */
+  --transition-duration: 0.2s;
+  --ring-animation-duration: 1s;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root {
+    --clr-text-primary: #2b2b2b;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-duration: 0s;
+    --ring-animation-duration: 0s;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--clr-text-primary);
+  background-color: var(--clr-background);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm);
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--clr-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Button reset */
+button {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Ensure sufficient touch targets */
+button,
+[role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
