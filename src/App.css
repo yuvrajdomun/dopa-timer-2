@@ -568,7 +568,7 @@
   }
 
   .timer-display {
-    margin: 2.5rem 0;
+    margin: 2.5rem auto;
     width: 240px;
     height: 240px;
   }
