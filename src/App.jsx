@@ -455,6 +455,11 @@ function PomodoroTimer() {
       <div className="sr-only">
         Keyboard shortcuts: Space to start/pause, R to reset, S to skip
       </div>
+      
+      {/* Visible keyboard shortcuts indicator */}
+      <div className="keyboard-shortcuts">
+        <kbd>Space</kbd> Start/Pause • <kbd>R</kbd> Reset • <kbd>S</kbd> Skip
+      </div>
     </main>
   )
 }

@@ -47,12 +47,13 @@
   background-color: var(--clr-surface);
   border-radius: var(--radius-md);
   padding: var(--space-xl);
-  max-width: 480px;
+  max-width: min(520px, 95vw);
   width: 100%;
   text-align: center;
   box-shadow: var(--shadow-soft);
   border: var(--border-subtle);
   transition: box-shadow var(--transition-duration) var(--transition-easing);
+  margin: 0 auto;
 }
 
 /* Ultra-gentle hover effect for container */
@@ -108,7 +109,7 @@
 
 .task-input {
   width: 100%;
-  max-width: 400px;
+  max-width: min(400px, 90vw);
   padding: var(--space-sm);
   border: 2px solid var(--clr-accent);
   border-radius: var(--radius-md);
@@ -122,6 +123,8 @@
   text-align: center;
   transition: border-color var(--transition-duration) ease,
     box-shadow var(--transition-duration) ease;
+  /* Enhanced touch target for mobile */
+  min-height: 44px;
 }
 
 .task-input:focus {
@@ -176,8 +179,8 @@
 
 .progress-ring {
   transform: rotate(-90deg);
-  width: 200px;
-  height: 200px;
+  width: clamp(140px, 35vw, 200px);
+  height: clamp(140px, 35vw, 200px);
 }
 
 .progress-ring__background {
@@ -363,37 +366,340 @@
   display: none;
 }
 
-/* Responsive design */
-@media (max-width: 480px) {
+/* ========================================
+   COMPREHENSIVE RESPONSIVE DESIGN
+   ======================================== */
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
   .timer-container {
+    padding: var(--space-xl);
+  }
+
+  .timer-controls {
+    gap: var(--space-md);
+  }
+
+  .btn {
+    min-width: 120px;
+  }
+
+  .timer-settings {
+    gap: var(--space-md);
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+  body {
     padding: var(--space-md);
   }
 
-  .timer-text {
-    font-size: 48px;
+  .timer-container {
+    max-width: min(600px, 90vw);
+    padding: clamp(var(--space-xl), 5vw, 3rem);
   }
 
   .progress-ring {
-    width: 160px;
-    height: 160px;
+    width: clamp(180px, 30vw, 220px);
+    height: clamp(180px, 30vw, 220px);
+  }
+
+  .timer-controls {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-lg);
+  }
+
+  .btn {
+    min-width: 140px;
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .task-input {
+    max-width: 450px;
+  }
+
+  .timer-settings {
+    gap: var(--space-lg);
+  }
+
+  .setting-group {
+    gap: var(--space-sm);
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .timer-container {
+    max-width: 650px;
+    padding: 3rem;
+  }
+
+  .timer-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .timer-display {
+    margin: 2.5rem 0;
+  }
+
+  .progress-ring {
+    width: 240px;
+    height: 240px;
+  }
+
+  .timer-controls {
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .btn {
+    min-width: 160px;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+  }
+
+  .task-input {
+    max-width: 500px;
+    padding: 1rem;
+  }
+
+  .timer-settings {
+    gap: 2rem;
+  }
+
+  .setting-input {
+    width: 70px;
+    padding: 0.75rem;
+  }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  .timer-container {
+    max-width: 700px;
+  }
+
+  .progress-ring {
+    width: 260px;
+    height: 260px;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* ========================================
+   MOBILE-FIRST OPTIMIZATIONS
+   ======================================== */
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+  body {
+    padding: var(--space-xs);
+  }
+
+  .timer-container {
+    padding: var(--space-md);
+    margin: var(--space-xs);
+    border-radius: var(--radius-sm);
+  }
+
+  .timer-title {
+    font-size: clamp(20px, 5vw, 24px);
+    margin-bottom: var(--space-xs);
+  }
+
+  .timer-state {
+    font-size: clamp(14px, 3.5vw, 16px);
+  }
+
+  .session-info {
+    font-size: clamp(12px, 3vw, 14px);
+  }
+
+  .progress-ring {
+    width: clamp(120px, 50vw, 160px);
+    height: clamp(120px, 50vw, 160px);
+  }
+
+  .timer-text {
+    font-size: clamp(32px, 10vw, 48px);
   }
 
   .timer-controls {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    gap: var(--space-sm);
   }
 
   .btn {
     width: 100%;
-    max-width: 200px;
+    min-height: 52px;
+    font-size: clamp(14px, 3.5vw, 16px);
+    padding: var(--space-sm);
+  }
+
+  .task-input-section {
+    margin: var(--space-md) 0;
   }
 
   .task-input {
-    max-width: 300px;
-    font-size: 14px;
+    max-width: 100%;
+    font-size: clamp(14px, 3.5vw, 16px);
+    padding: var(--space-sm);
   }
 
   .task-text {
-    font-size: var(--font-size-base);
+    font-size: clamp(14px, 3.5vw, 16px);
+  }
+
+  .timer-settings {
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: center;
+  }
+
+  .setting-group {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .setting-input {
+    width: 80px;
+    min-height: 44px;
+    font-size: clamp(14px, 3.5vw, 16px);
+  }
+}
+
+/* ========================================
+   LANDSCAPE PHONE OPTIMIZATIONS
+   ======================================== */
+
+@media (max-width: 767.98px) and (orientation: landscape) {
+  .timer-container {
+    padding: var(--space-md) var(--space-lg);
+    max-width: 90vw;
+  }
+
+  .timer-display {
+    margin: var(--space-md) 0;
+  }
+
+  .progress-ring {
+    width: clamp(100px, 25vw, 140px);
+    height: clamp(100px, 25vw, 140px);
+  }
+
+  .timer-text {
+    font-size: clamp(24px, 8vw, 36px);
+  }
+
+  .timer-controls {
+    flex-direction: row;
+    gap: var(--space-sm);
+  }
+
+  .btn {
+    min-width: auto;
+    flex: 1;
+    max-width: 120px;
+  }
+
+  .timer-settings {
+    flex-direction: row;
+    gap: var(--space-md);
+  }
+}
+
+/* ========================================
+   KEYBOARD SHORTCUTS INDICATOR
+   ======================================== */
+
+.keyboard-shortcuts {
+  position: fixed;
+  bottom: var(--space-sm);
+  right: var(--space-sm);
+  background-color: var(--clr-surface-soft);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--clr-text-secondary);
+  box-shadow: var(--shadow-soft);
+  opacity: 0.7;
+  transition: opacity var(--transition-duration) var(--transition-easing);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.keyboard-shortcuts:hover {
+  opacity: 1;
+}
+
+.keyboard-shortcuts kbd {
+  background-color: var(--clr-background);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 600;
+  margin: 0 2px;
+  border: 1px solid var(--clr-accent);
+  color: var(--clr-accent);
+}
+
+/* Hide keyboard shortcuts on very small screens */
+@media (max-width: 480px) {
+  .keyboard-shortcuts {
+    display: none;
+  }
+}
+
+/* ========================================
+   TOUCH OPTIMIZATIONS
+   ======================================== */
+
+/* Improve touch targets on touch devices */
+@media (pointer: coarse) {
+  .btn {
+    min-height: 52px;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .task-input {
+    min-height: 52px;
+    padding: var(--space-md);
+  }
+
+  .setting-input {
+    min-height: 52px;
+    padding: var(--space-sm);
+  }
+
+  /* Larger touch targets for interactive elements */
+  button,
+  input {
+    min-height: 44px;
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  .timer-container {
+    box-shadow: none;
+    border: 2px solid var(--clr-accent);
+  }
+
+  .keyboard-shortcuts {
+    display: none;
+  }
+
+  .timer-controls {
+    display: none;
   }
 }
