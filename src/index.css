@@ -14,16 +14,23 @@
   --clr-short-break: #5d7160;
   --clr-long-break: #8078b8;
 
-  /* Typography */
-  --font-family: Inter, "Helvetica Neue", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", system-ui, sans-serif;
+  /* Typography - Optimized for ADHD/Neurodivergent readability */
+  --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", system-ui, sans-serif;
   --font-size-base: 16px;
   --font-size-lg: 20px;
   --font-size-xl: 24px;
   --font-size-2xl: 32px;
   --font-size-3xl: 40px;
   --font-size-timer: 64px;
-  --line-height-base: 1.5;
+  --line-height-base: 1.6; /* Slightly increased for better readability */
+  --line-height-tight: 1.4;
+  --line-height-heading: 1.2;
+
+  /* Letter spacing for improved readability */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
 
   /* Spacing (8pt grid) */
   --space-xs: 8px;
@@ -82,6 +89,35 @@ body {
   align-items: center;
   justify-content: center;
   padding: var(--space-sm);
+
+  /* Enhanced text rendering for better clarity */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* Improve font kerning for better spacing */
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+}
+
+/* Typography enhancements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-tight);
+  font-weight: 600;
+}
+
+/* Improve number readability (important for timer display) */
+.timer-numbers,
+input[type="number"],
+.timer-text {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1; /* Ensure consistent number width */
 }
 
 /* Screen reader only content */
@@ -112,6 +148,10 @@ button {
   font-size: inherit;
   cursor: pointer;
   touch-action: manipulation;
+
+  /* Improve button text rendering */
+  letter-spacing: var(--letter-spacing-wide);
+  font-weight: 500;
 }
 
 /* Ensure sufficient touch targets */
@@ -119,4 +159,17 @@ button,
 [role="button"] {
   min-height: 44px;
   min-width: 44px;
+}
+
+/* Improve input field typography */
+input {
+  font-family: var(--font-family);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+/* Better text selection for accessibility */
+::selection {
+  background-color: var(--clr-accent);
+  color: white;
+  text-shadow: none;
 }

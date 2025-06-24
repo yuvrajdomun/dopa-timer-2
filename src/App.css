@@ -62,6 +62,8 @@
   font-weight: 600;
   margin-bottom: var(--space-sm);
   color: var(--clr-text-primary);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .timer-state {
@@ -69,12 +71,17 @@
   font-weight: 500;
   color: var(--clr-accent);
   margin-bottom: var(--space-xs);
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: var(--line-height-tight);
 }
 
 .session-info {
   font-size: var(--font-size-base);
   color: var(--clr-text-primary);
   opacity: 0.8;
+  font-weight: 500;
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-tight);
 }
 
 /* Timer Display */
@@ -141,8 +148,12 @@
   font-size: var(--font-size-timer);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "kern" 1;
   color: var(--clr-text-primary);
   line-height: 1;
+  letter-spacing: var(--letter-spacing-tight);
+  /* Enhanced readability for timer numbers */
+  text-shadow: 0 1px 2px rgba(66, 84, 90, 0.1);
 }
 
 /* Controls */
@@ -165,6 +176,8 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-xs);
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: var(--line-height-tight);
 }
 
 .btn-primary {
@@ -219,6 +232,8 @@
   font-size: 14px;
   color: var(--clr-text-primary);
   font-weight: 500;
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: var(--line-height-tight);
 }
 
 .setting-input {
@@ -230,6 +245,10 @@
   color: var(--clr-text-primary);
   text-align: center;
   font-size: var(--font-size-base);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 /* Status announcements */
@@ -240,6 +259,8 @@
   border-radius: var(--radius-sm);
   font-weight: 500;
   color: var(--clr-text-primary);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-base);
 }
 
 .timer-status:empty {
