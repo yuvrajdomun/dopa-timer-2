@@ -4,6 +4,8 @@
   "github": {
     "silent": true
   },
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "headers": [
     {
       "source": "/(.*)",
