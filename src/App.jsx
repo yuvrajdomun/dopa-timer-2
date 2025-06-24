@@ -1,5 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
+import {
+  trackTimerStart,
+  trackTimerPause,
+  trackTimerComplete,
+  trackTimerReset,
+  trackTimerSkip,
+  trackTaskInput,
+  trackDurationChange,
+  trackSessionMilestone,
+  trackPomodoroComplete,
+  trackKeyboardShortcut,
+  trackReducedMotionDetected,
+  trackHighContrastDetected,
+  trackPageVisibility,
+  trackFeatureUsage
+} from './utils/analytics.js'
 
 const TIMER_STATES = {
   WORK: 'work',
@@ -28,9 +44,11 @@ function PomodoroTimer() {
   const [isOvertime, setIsOvertime] = useState(false)
   const [statusMessage, setStatusMessage] = useState('')
   const [currentTask, setCurrentTask] = useState('')
+  const [firstTaskInput, setFirstTaskInput] = useState(true)
   
   const intervalRef = useRef(null)
   const audioRef = useRef(null)
+  const pageVisibilityStartTime = useRef(Date.now())
   
   // Calculate progress for the ring
   const totalTime = durations[currentState]
@@ -46,9 +64,12 @@ function PomodoroTimer() {
     return `${sign}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }, [])
   
-  // Handle timer completion
+  // Handle timer completion with comprehensive tracking
   const handleTimerComplete = useCallback(() => {
     setIsRunning(false)
+    
+    // Track timer completion
+    trackTimerComplete(currentState, session, isOvertime)
     
     // Play notification sound (if audio is enabled)
     if (audioRef.current) {
@@ -60,20 +81,33 @@ function PomodoroTimer() {
     // Provide haptic feedback on mobile
     if ('vibrate' in navigator) {
       navigator.vibrate(100)
+      trackFeatureUsage('haptic_feedback')
     }
     
     let nextState
     let message
+    let newSessionNumber = session
     
     if (currentState === TIMER_STATES.WORK) {
       // After work, determine break type based on session count
       nextState = session % 4 === 0 ? TIMER_STATES.LONG_BREAK : TIMER_STATES.SHORT_BREAK
       message = `Focus session complete! Time for a ${nextState === TIMER_STATES.LONG_BREAK ? 'long' : 'short'} break.`
     } else {
-      // After any break, go to work
+      // After any break, go to work and increment session
       nextState = TIMER_STATES.WORK
-      setSession(prev => prev + 1)
+      newSessionNumber = session + 1
+      setSession(newSessionNumber)
       message = 'Break over, focus time!'
+      
+      // Track session milestones
+      trackSessionMilestone(newSessionNumber)
+      
+      // Track Pomodoro completion (every 4 sessions)
+      if (newSessionNumber % 4 === 1 && newSessionNumber > 1) {
+        const pomodoroNumber = Math.floor((newSessionNumber - 1) / 4)
+        trackPomodoroComplete(pomodoroNumber, newSessionNumber)
+        trackFeatureUsage('pomodoro_complete')
+      }
     }
     
     setCurrentState(nextState)
@@ -83,7 +117,7 @@ function PomodoroTimer() {
     
     // Clear status message after 5 seconds
     setTimeout(() => setStatusMessage(''), 5000)
-  }, [currentState, session, durations])
+  }, [currentState, session, durations, isOvertime])
   
   // Timer logic
   useEffect(() => {
@@ -113,14 +147,22 @@ function PomodoroTimer() {
     return () => clearInterval(intervalRef.current)
   }, [isRunning, isOvertime, handleTimerComplete])
   
-  // Control functions
+  // Control functions with comprehensive tracking
   const startTimer = () => {
     setIsRunning(true)
     setStatusMessage('')
+    
+    // Track timer start with context
+    trackTimerStart(currentState, durations[currentState], currentTask.length > 0)
+    trackFeatureUsage('timer_start')
   }
   
   const pauseTimer = () => {
     setIsRunning(false)
+    
+    // Track timer pause with progress
+    trackTimerPause(currentState, timeLeft, durations[currentState])
+    trackFeatureUsage('timer_pause')
   }
   
   const resetTimer = () => {
@@ -128,14 +170,32 @@ function PomodoroTimer() {
     setTimeLeft(durations[currentState])
     setIsOvertime(false)
     setStatusMessage('')
+    
+    // Track timer reset with progress
+    trackTimerReset(currentState, timeLeft, durations[currentState])
+    trackFeatureUsage('timer_reset')
   }
   
   const skipToNext = () => {
+    const nextState = currentState === TIMER_STATES.WORK 
+      ? (session % 4 === 0 ? TIMER_STATES.LONG_BREAK : TIMER_STATES.SHORT_BREAK)
+      : TIMER_STATES.WORK
+    
+    // Track skip action
+    trackTimerSkip(currentState, nextState, session)
+    trackFeatureUsage('timer_skip')
+    
     handleTimerComplete()
   }
   
   const handleDurationChange = (state, minutes) => {
+    const oldDuration = durations[state]
     const seconds = Math.max(1, Math.min(99, minutes)) * 60
+    
+    // Track duration change
+    trackDurationChange(state, oldDuration, seconds)
+    trackFeatureUsage('duration_change')
+    
     setDurations(prev => ({ ...prev, [state]: seconds }))
     
     // Update current timer if we're in that state and not running
@@ -146,10 +206,24 @@ function PomodoroTimer() {
   }
   
   const handleTaskChange = (e) => {
-    setCurrentTask(e.target.value)
+    const newTask = e.target.value
+    setCurrentTask(newTask)
+    
+    // Track task input
+    if (newTask.length > 0 && newTask.length % 5 === 0) { // Track every 5 characters
+      trackTaskInput(newTask.length, firstTaskInput)
+      if (firstTaskInput) {
+        setFirstTaskInput(false)
+        trackFeatureUsage('first_task_input')
+      }
+    }
+    
+    if (newTask.length === 0 && currentTask.length > 0) {
+      trackFeatureUsage('task_clear')
+    }
   }
   
-  // Keyboard controls
+  // Keyboard controls with tracking
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (e.target.type === 'number' || e.target.type === 'text') return // Don't interfere with input fields
@@ -157,15 +231,19 @@ function PomodoroTimer() {
       switch (e.key) {
         case ' ':
           e.preventDefault()
+          const action = isRunning ? 'pause' : 'start'
+          trackKeyboardShortcut('space', action)
           isRunning ? pauseTimer() : startTimer()
           break
         case 'r':
           if (e.ctrlKey || e.metaKey) return // Don't interfere with browser refresh
           e.preventDefault()
+          trackKeyboardShortcut('r', 'reset')
           resetTimer()
           break
         case 's':
           e.preventDefault()
+          trackKeyboardShortcut('s', 'skip')
           skipToNext()
           break
       }
@@ -174,6 +252,55 @@ function PomodoroTimer() {
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [isRunning])
+  
+  // Track accessibility preferences
+  useEffect(() => {
+    // Check for reduced motion preference
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (mediaQuery.matches) {
+      trackReducedMotionDetected()
+    }
+    
+    // Check for high contrast preference  
+    const contrastQuery = window.matchMedia('(prefers-contrast: high)')
+    if (contrastQuery.matches) {
+      trackHighContrastDetected()
+    }
+    
+    // Track initial page load
+    trackFeatureUsage('page_load')
+  }, [])
+  
+  // Track page visibility changes for engagement analytics
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const isVisible = !document.hidden
+      const sessionDuration = Math.floor((Date.now() - pageVisibilityStartTime.current) / 1000)
+      
+      trackPageVisibility(isVisible, sessionDuration)
+      
+      if (isVisible) {
+        pageVisibilityStartTime.current = Date.now()
+        trackFeatureUsage('page_focus')
+      } else {
+        trackFeatureUsage('page_blur')
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
+  
+  // Track app engagement on mount
+  useEffect(() => {
+    const startTime = Date.now()
+    
+    return () => {
+      // Track session duration when component unmounts
+      const sessionDuration = Math.floor((Date.now() - startTime) / 1000)
+      trackFeatureUsage('app_session_end', sessionDuration)
+    }
+  }, [])
   
   return (
     <main className="timer-container" data-state={currentState} data-overtime={isOvertime}>
