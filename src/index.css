@@ -55,6 +55,8 @@
   /* Ultra-gentle animations for low-stim */
   --transition-duration: 0.3s;
   --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-theme-duration: 0.4s;
+  --transition-theme-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ring-animation-duration: 2s;
 
   /* Low-stim visual effects */
@@ -195,6 +197,8 @@ html[data-theme="dark"] .timer-title {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     transform: none !important;
+    /* Disable theme transitions for users who prefer reduced motion */
+    transition: none !important;
   }
 
   /* Disable all hover effects in reduced motion */
@@ -210,6 +214,19 @@ html[data-theme="dark"] .timer-title {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Smooth theme transitions for all elements */
+*,
+*::before,
+*::after {
+  transition: background-color var(--transition-theme-duration)
+      var(--transition-theme-easing),
+    color var(--transition-theme-duration) var(--transition-theme-easing),
+    border-color var(--transition-theme-duration) var(--transition-theme-easing),
+    box-shadow var(--transition-theme-duration) var(--transition-theme-easing),
+    fill var(--transition-theme-duration) var(--transition-theme-easing),
+    stroke var(--transition-theme-duration) var(--transition-theme-easing);
 }
 
 body {

@@ -688,7 +688,11 @@
   padding: var(--space-sm);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all var(--transition-duration) var(--transition-easing);
+  transition: all var(--transition-duration) var(--transition-easing),
+    background-color 0.4s var(--transition-easing),
+    color 0.4s var(--transition-easing),
+    border-color 0.4s var(--transition-easing),
+    box-shadow 0.4s var(--transition-easing);
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -709,11 +713,13 @@
   background-color: #f3f7f8;
   color: #485862;
   border-color: #7ab5b5;
+  transition: all 0.4s var(--transition-easing);
 }
 
 .dark-mode-toggle.light-mode-active:hover {
   background-color: #e8f0f0;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(122, 181, 181, 0.2);
 }
 
 /* Dark Mode Active State */
@@ -721,11 +727,13 @@
   background-color: #6dd4d4;
   color: #0f1419;
   border-color: #6dd4d4;
+  transition: all 0.4s var(--transition-easing);
 }
 
 .dark-mode-toggle.dark-mode-active:hover {
   background-color: #5fc7c7;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(109, 212, 212, 0.3);
 }
 
 .dark-mode-toggle:focus-visible {
@@ -735,12 +743,19 @@
 
 .dark-mode-toggle-icon {
   font-size: 20px;
-  transition: transform var(--transition-duration) var(--transition-easing);
+  transition: transform var(--transition-duration) var(--transition-easing),
+    opacity 0.2s var(--transition-easing);
   margin-bottom: 2px;
 }
 
 .dark-mode-toggle:hover .dark-mode-toggle-icon {
-  transform: rotate(15deg);
+  transform: rotate(15deg) scale(1.1);
+}
+
+/* Smooth icon transition during theme switch */
+.dark-mode-toggle:active .dark-mode-toggle-icon {
+  transform: rotate(180deg) scale(0.9);
+  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .dark-mode-toggle-label {
