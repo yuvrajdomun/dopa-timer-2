@@ -64,7 +64,7 @@
 }
 
 /* Dark Mode Theme - High Contrast & ADHD-Friendly */
-[data-theme="dark"] {
+html[data-theme="dark"] {
   /* Dark Mode Sea Glass Palette - Enhanced contrast for accessibility */
   --clr-background: #0f1419;
   --clr-surface: #1a2025;
@@ -89,6 +89,21 @@
   --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-focus: 0 0 0 3px var(--clr-accent-light);
   --border-subtle: 1px solid rgba(109, 212, 212, 0.25);
+}
+
+/* Force dark mode styles to be very obvious */
+html[data-theme="dark"] body {
+  background-color: #0f1419 !important;
+  color: #e6f1f5 !important;
+}
+
+html[data-theme="dark"] .timer-container {
+  background-color: #1a2025 !important;
+  color: #e6f1f5 !important;
+}
+
+html[data-theme="dark"] .timer-title {
+  color: #e6f1f5 !important;
 }
 
 /* System dark mode preference detection */

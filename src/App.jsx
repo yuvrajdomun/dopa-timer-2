@@ -315,6 +315,19 @@ function PomodoroTimer() {
     console.log('Toggling dark mode from', darkMode, 'to', newMode) // Debug log
     setDarkMode(newMode)
     
+    // Manually apply/remove the attribute as a fallback
+    if (newMode) {
+      document.documentElement.setAttribute('data-theme', 'dark')
+      document.body.style.backgroundColor = '#0f1419'
+      document.body.style.color = '#e6f1f5'
+      console.log('FORCED DARK MODE ON') // Debug log
+    } else {
+      document.documentElement.removeAttribute('data-theme')
+      document.body.style.backgroundColor = ''
+      document.body.style.color = ''
+      console.log('FORCED DARK MODE OFF') // Debug log
+    }
+    
     // Save preference to localStorage
     localStorage.setItem('dopaflow-theme', newMode ? 'dark' : 'light')
     
