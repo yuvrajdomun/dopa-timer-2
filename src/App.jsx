@@ -528,7 +528,11 @@ function PomodoroTimer() {
       )}
       
       <div className="timer-display">
-        <svg className="progress-ring" aria-hidden="true">
+        <svg 
+          className="progress-ring" 
+          viewBox="0 0 200 200" 
+          aria-hidden="true"
+        >
           <circle
             className="progress-ring__background"
             cx="100"
