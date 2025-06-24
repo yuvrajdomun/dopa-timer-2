@@ -66,11 +66,15 @@ function PomodoroTimer() {
   const [darkMode, setDarkMode] = useState(() => {
     // Check for saved preference first
     const savedTheme = localStorage.getItem('dopaflow-theme')
+    console.log('Saved theme from localStorage:', savedTheme) // Debug log
     if (savedTheme) {
+      console.log('Using saved theme:', savedTheme === 'dark') // Debug log
       return savedTheme === 'dark'
     }
     // Default to system preference
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    console.log('Using system preference:', systemPrefersDark) // Debug log
+    return systemPrefersDark
   })
   
   const intervalRef = useRef(null)
@@ -308,6 +312,7 @@ function PomodoroTimer() {
   // Dark mode toggle function
   const toggleDarkMode = () => {
     const newMode = !darkMode
+    console.log('Toggling dark mode from', darkMode, 'to', newMode) // Debug log
     setDarkMode(newMode)
     
     // Save preference to localStorage
@@ -455,11 +460,15 @@ function PomodoroTimer() {
   
   // Dark mode theme application
   useEffect(() => {
+    console.log('Applying theme:', darkMode ? 'dark' : 'light') // Debug log
+    
     // Apply theme to document
     if (darkMode) {
       document.documentElement.setAttribute('data-theme', 'dark')
+      console.log('Set data-theme="dark" on document') // Debug log
     } else {
       document.documentElement.removeAttribute('data-theme')
+      console.log('Removed data-theme from document') // Debug log
     }
     
     // Update meta theme-color for mobile browsers
@@ -715,6 +724,8 @@ function PomodoroTimer() {
       </main>
     )
   }
+
+  console.log('Rendering with darkMode state:', darkMode) // Debug log
 
   return (
     <main className="timer-container" data-state={currentState} data-overtime={isOvertime}>

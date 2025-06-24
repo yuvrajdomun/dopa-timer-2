@@ -683,8 +683,8 @@
   position: absolute;
   top: var(--space-md);
   right: var(--space-md);
-  background: none;
-  border: none;
+  background: var(--clr-surface);
+  border: 2px solid var(--clr-accent);
   padding: var(--space-xs);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -692,13 +692,14 @@
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  color: var(--clr-text-secondary);
+  color: var(--clr-text-primary);
   font-size: 14px;
   font-weight: 500;
   letter-spacing: var(--letter-spacing-wide);
   min-height: 44px;
   min-width: 44px;
   z-index: 100;
+  box-shadow: var(--shadow-soft);
 }
 
 .dark-mode-toggle:hover {
