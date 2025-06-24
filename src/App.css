@@ -686,6 +686,99 @@
 }
 
 /* ========================================
+   LOADING STATES
+   ======================================== */
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(241, 246, 247, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--clr-accent-light);
+  border-top: 3px solid var(--clr-accent);
+  border-radius: 50%;
+  animation: gentle-spin 1.5s ease-in-out infinite;
+}
+
+@keyframes gentle-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Respect reduced motion for loading spinner */
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+    border: 3px solid var(--clr-accent);
+  }
+
+  .loading-spinner::after {
+    content: "Loading...";
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: var(--clr-text-primary);
+    white-space: nowrap;
+  }
+}
+
+/* ========================================
+   DATA PERSISTENCE INDICATORS
+   ======================================== */
+
+.save-indicator {
+  position: fixed;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  background-color: var(--clr-accent-light);
+  color: var(--clr-text-primary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all var(--transition-duration) var(--transition-easing);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.save-indicator.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.save-indicator.error {
+  background-color: var(--clr-alert);
+  color: var(--clr-text-primary);
+}
+
+/* Hide save indicators on small screens to avoid clutter */
+@media (max-width: 480px) {
+  .save-indicator {
+    display: none;
+  }
+}
+
+/* ========================================
    PRINT STYLES
    ======================================== */
 
@@ -695,7 +788,9 @@
     border: 2px solid var(--clr-accent);
   }
 
-  .keyboard-shortcuts {
+  .keyboard-shortcuts,
+  .loading-overlay,
+  .save-indicator {
     display: none;
   }
 

@@ -7,7 +7,7 @@
 - [x] **Low-stim theme** (pastel palette, large mono digits, zero flashing)
 - [x] **Responsive** layout (mobile ↔ desktop) with keyboard shortcuts
   - Space = start/pause R = reset
-- [ ] Local **persistence** (localStorage) for task, theme, and session lengths
+- [x] Local **persistence** (localStorage) for task, theme, and session lengths
 - [ ] **Affiliate shelf** with 3 Pomodoro books (Amazon Associate links)
 
 ## ♿ Phase 2 – Accessibility & Neuro-inclusivity

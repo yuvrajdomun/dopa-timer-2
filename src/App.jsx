@@ -16,6 +16,18 @@ import {
   trackPageVisibility,
   trackFeatureUsage
 } from './utils/analytics.js'
+import {
+  saveCurrentTask,
+  loadCurrentTask,
+  clearCurrentTask,
+  saveDurations,
+  loadDurations,
+  saveSessionData,
+  loadSessionData,
+  saveUserPreferences,
+  loadUserPreferences,
+  isStorageAvailable
+} from './utils/localStorage.js'
 
 const TIMER_STATES = {
   WORK: 'work',
@@ -36,6 +48,7 @@ const STATE_LABELS = {
 }
 
 function PomodoroTimer() {
+  // Initialize state with localStorage data
   const [currentState, setCurrentState] = useState(TIMER_STATES.WORK)
   const [timeLeft, setTimeLeft] = useState(DEFAULT_DURATIONS[TIMER_STATES.WORK])
   const [isRunning, setIsRunning] = useState(false)
@@ -45,10 +58,28 @@ function PomodoroTimer() {
   const [statusMessage, setStatusMessage] = useState('')
   const [currentTask, setCurrentTask] = useState('')
   const [firstTaskInput, setFirstTaskInput] = useState(true)
+  const [isDataLoaded, setIsDataLoaded] = useState(false)
+  const [saveIndicator, setSaveIndicator] = useState('')
   
   const intervalRef = useRef(null)
   const audioRef = useRef(null)
   const pageVisibilityStartTime = useRef(Date.now())
+  const saveIndicatorTimeoutRef = useRef(null)
+
+  // Show save indicator to user
+  const showSaveIndicator = useCallback((message, isError = false) => {
+    setSaveIndicator(message)
+    
+    // Clear any existing timeout
+    if (saveIndicatorTimeoutRef.current) {
+      clearTimeout(saveIndicatorTimeoutRef.current)
+    }
+    
+    // Hide indicator after 2 seconds
+    saveIndicatorTimeoutRef.current = setTimeout(() => {
+      setSaveIndicator('')
+    }, 2000)
+  }, [])
   
   // Calculate progress for the ring
   const totalTime = durations[currentState]
@@ -196,7 +227,16 @@ function PomodoroTimer() {
     trackDurationChange(state, oldDuration, seconds)
     trackFeatureUsage('duration_change')
     
-    setDurations(prev => ({ ...prev, [state]: seconds }))
+    const newDurations = { ...durations, [state]: seconds }
+    setDurations(newDurations)
+    
+    // Save immediately for duration changes (important setting)
+    if (isDataLoaded) {
+      const success = saveDurations(newDurations)
+      if (success) {
+        showSaveIndicator('Duration saved')
+      }
+    }
     
     // Update current timer if we're in that state and not running
     if (state === currentState && !isRunning) {
@@ -220,6 +260,11 @@ function PomodoroTimer() {
     
     if (newTask.length === 0 && currentTask.length > 0) {
       trackFeatureUsage('task_clear')
+      // Clear from localStorage immediately when task is cleared
+      if (isDataLoaded && isStorageAvailable()) {
+        clearCurrentTask()
+        showSaveIndicator('Task cleared')
+      }
     }
   }
   
@@ -301,9 +346,147 @@ function PomodoroTimer() {
       trackFeatureUsage('app_session_end', sessionDuration)
     }
   }, [])
+
+  // Load data from localStorage on mount
+  useEffect(() => {
+    const loadSavedData = async () => {
+      try {
+        // Check if localStorage is available
+        if (!isStorageAvailable()) {
+          console.warn('localStorage not available - data will not persist')
+          setIsDataLoaded(true)
+          return
+        }
+
+        // Load saved durations
+        const savedDurations = loadDurations()
+        if (savedDurations) {
+          setDurations(savedDurations)
+          // Update timeLeft if we're still in the default state and not running
+          if (!isRunning && timeLeft === DEFAULT_DURATIONS[currentState]) {
+            setTimeLeft(savedDurations[currentState] || DEFAULT_DURATIONS[currentState])
+          }
+        }
+
+        // Load saved task
+        const savedTask = loadCurrentTask()
+        if (savedTask) {
+          setCurrentTask(savedTask)
+          setFirstTaskInput(false) // User has previously entered a task
+        }
+
+        // Load saved session data (only if recent)
+        const savedSession = loadSessionData()
+        if (savedSession && !isRunning) {
+          if (savedSession.currentSession) {
+            setSession(savedSession.currentSession)
+          }
+          if (savedSession.currentState && savedSession.currentState !== currentState) {
+            setCurrentState(savedSession.currentState)
+            const stateDuration = savedDurations[savedSession.currentState] || DEFAULT_DURATIONS[savedSession.currentState]
+            setTimeLeft(stateDuration)
+          }
+        }
+
+        // Track successful data loading
+        trackFeatureUsage('localStorage_load_success')
+        
+      } catch (error) {
+        console.warn('Error loading saved data:', error.message)
+        trackFeatureUsage('localStorage_load_error')
+      } finally {
+        setIsDataLoaded(true)
+      }
+    }
+
+    loadSavedData()
+  }, [])
+
+  // Save durations whenever they change
+  useEffect(() => {
+    if (isDataLoaded) {
+      const success = saveDurations(durations)
+      if (success) {
+        showSaveIndicator('Settings saved')
+      } else {
+        showSaveIndicator('Save failed', true)
+      }
+      trackFeatureUsage('localStorage_save_durations')
+    }
+  }, [durations, isDataLoaded, showSaveIndicator])
+
+  // Save current task whenever it changes (debounced)
+  useEffect(() => {
+    if (!isDataLoaded) return
+
+    const timeoutId = setTimeout(() => {
+      if (currentTask.trim()) {
+        const success = saveCurrentTask(currentTask)
+        if (success) {
+          showSaveIndicator('Task saved')
+        }
+        trackFeatureUsage('localStorage_save_task')
+      }
+    }, 1000) // Wait 1 second after user stops typing
+
+    return () => clearTimeout(timeoutId)
+  }, [currentTask, isDataLoaded])
+
+  // Save session data periodically and on state changes
+  useEffect(() => {
+    if (isDataLoaded) {
+      const sessionData = {
+        currentSession: session,
+        currentState: currentState
+      }
+      saveSessionData(sessionData)
+      trackFeatureUsage('localStorage_save_session')
+    }
+  }, [session, currentState, isDataLoaded])
+
+  // Auto-save when page becomes hidden (user switches tabs/closes browser)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && isDataLoaded) {
+        // Save all current data before potentially losing the page
+        saveDurations(durations)
+        if (currentTask.trim()) {
+          saveCurrentTask(currentTask)
+        }
+        saveSessionData({
+          currentSession: session,
+          currentState: currentState
+        })
+        trackFeatureUsage('localStorage_auto_save_on_hide')
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [durations, currentTask, session, currentState, isDataLoaded])
   
+  // Show loading state while data is being loaded
+  if (!isDataLoaded) {
+    return (
+      <main className="timer-container">
+        <div className="loading-state">
+          <div className="loading-text">Loading your saved preferences...</div>
+          <div className="loading-spinner" aria-hidden="true"></div>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="timer-container" data-state={currentState} data-overtime={isOvertime}>
+      {/* Storage status indicator */}
+      {!isStorageAvailable() && (
+        <div className="storage-warning" role="alert">
+          <span className="warning-icon" aria-hidden="true">⚠️</span>
+          Settings won't be saved - localStorage unavailable
+        </div>
+      )}
+
       {/* Hidden audio element for notifications */}
       <audio ref={audioRef} preload="auto">
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmYfCDuX2e6/dSEELYPN8+NnTw0PVqfq8KVMEgs=" type="audio/wav" />
@@ -460,6 +643,22 @@ function PomodoroTimer() {
       <div className="keyboard-shortcuts">
         <kbd>Space</kbd> Start/Pause • <kbd>R</kbd> Reset • <kbd>S</kbd> Skip
       </div>
+
+      {/* Loading indicator while data loads */}
+      {!isDataLoaded && (
+        <div className="loading-overlay">
+          <div className="loading-spinner" aria-label="Loading your saved data...">
+            <div className="sr-only">Loading your saved preferences and tasks...</div>
+          </div>
+        </div>
+      )}
+
+      {/* Save indicator */}
+      {saveIndicator && (
+        <div className={`save-indicator show`} role="status" aria-live="polite">
+          {saveIndicator}
+        </div>
+      )}
     </main>
   )
 }
