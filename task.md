@@ -4,7 +4,7 @@
 
 - [x] 25 / 5 default timer with **Start / Pause / Reset**
 - [x] Inline **task input** shown during the session
-- [ ] **Low-stim theme** (pastel palette, large mono digits, zero flashing)
+- [x] **Low-stim theme** (pastel palette, large mono digits, zero flashing)
 - [ ] **Responsive** layout (mobile ↔ desktop) with keyboard shortcuts
   - Space = start/pause R = reset
 - [ ] Local **persistence** (localStorage) for task, theme, and session lengths
