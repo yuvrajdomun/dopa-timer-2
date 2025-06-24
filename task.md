@@ -2,8 +2,8 @@
 
 ## ✨ Phase 1 – Core MVP
 
-- [ ] 25 / 5 default timer with **Start / Pause / Reset**
-- [ ] Inline **task input** shown during the session
+- [x] 25 / 5 default timer with **Start / Pause / Reset**
+- [x] Inline **task input** shown during the session
 - [ ] **Low-stim theme** (pastel palette, large mono digits, zero flashing)
 - [ ] **Responsive** layout (mobile ↔ desktop) with keyboard shortcuts
   - Space = start/pause R = reset
@@ -13,7 +13,7 @@
 ## ♿ Phase 2 – Accessibility & Neuro-inclusivity
 
 - [ ] **Adjustable session lengths** (work & break sliders)
-- [ ] “**Micro-sprint**” 5- or 10-minute quick start button
+- [ ] "**Micro-sprint**" 5- or 10-minute quick start button
 - [ ] **Prefers-reduced-motion** guard (disable ring animation if set)
 - [ ] High-contrast **dark mode** toggle
 - [ ] **Adjustable font size** (sm / md / lg) saved per user
@@ -23,7 +23,7 @@
 ## 🔄 Phase 3 – Engagement & Motivation
 
 - [ ] **Progress ring** with colour drift in last 60 s
-- [ ] **Soft fade overlay** in last 5 s (“wind-down”)
+- [ ] **Soft fade overlay** in last 5 s ("wind-down")
 - [ ] **Streak counter** + gentle confetti on completed focus slices
 - [ ] **Hard-stop break** toggle (disable Start for first 30 s of break)
 - [ ] Rewarded **ambient-sound packs** (one free, more via upsell)

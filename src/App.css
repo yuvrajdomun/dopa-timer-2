@@ -84,6 +84,78 @@
   line-height: var(--line-height-tight);
 }
 
+/* Task Input Section */
+.task-input-section {
+  margin: var(--space-lg) 0;
+  text-align: center;
+}
+
+.task-label {
+  display: block;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--clr-text-primary);
+  margin-bottom: var(--space-sm);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.task-input {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--space-sm);
+  border: 2px solid var(--clr-accent);
+  border-radius: var(--radius-md);
+  background-color: var(--clr-background);
+  color: var(--clr-text-primary);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family);
+  font-weight: 400;
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-base);
+  text-align: center;
+  transition: border-color var(--transition-duration) ease,
+    box-shadow var(--transition-duration) ease;
+}
+
+.task-input:focus {
+  outline: none;
+  border-color: var(--clr-work);
+  box-shadow: 0 0 0 3px rgba(106, 168, 168, 0.1);
+}
+
+.task-input::placeholder {
+  color: var(--clr-text-primary);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.current-task-display {
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
+  background-color: rgba(106, 168, 168, 0.1);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--clr-accent);
+}
+
+.task-prefix {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--clr-text-primary);
+  opacity: 0.8;
+  display: block;
+  margin-bottom: var(--space-xs);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.task-text {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--clr-accent);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: var(--line-height-tight);
+  word-break: break-word;
+}
+
 /* Timer Display */
 .timer-display {
   position: relative;
@@ -290,5 +362,14 @@
   .btn {
     width: 100%;
     max-width: 200px;
+  }
+
+  .task-input {
+    max-width: 300px;
+    font-size: 14px;
+  }
+
+  .task-text {
+    font-size: var(--font-size-base);
   }
 }

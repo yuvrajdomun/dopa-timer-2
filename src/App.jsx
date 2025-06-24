@@ -27,6 +27,7 @@ function PomodoroTimer() {
   const [durations, setDurations] = useState(DEFAULT_DURATIONS)
   const [isOvertime, setIsOvertime] = useState(false)
   const [statusMessage, setStatusMessage] = useState('')
+  const [currentTask, setCurrentTask] = useState('')
   
   const intervalRef = useRef(null)
   const audioRef = useRef(null)
@@ -144,10 +145,14 @@ function PomodoroTimer() {
     }
   }
   
+  const handleTaskChange = (e) => {
+    setCurrentTask(e.target.value)
+  }
+  
   // Keyboard controls
   useEffect(() => {
     const handleKeyPress = (e) => {
-      if (e.target.type === 'number') return // Don't interfere with input fields
+      if (e.target.type === 'number' || e.target.type === 'text') return // Don't interfere with input fields
       
       switch (e.key) {
         case ' ':
@@ -186,6 +191,31 @@ function PomodoroTimer() {
           Session {session} • Pomodoro {Math.ceil(session / 4)}
         </div>
       </header>
+
+      {/* Task Input - Show during work sessions */}
+      {currentState === TIMER_STATES.WORK && (
+        <div className="task-input-section">
+          <label htmlFor="current-task" className="task-label">
+            What are you working on?
+          </label>
+          <input
+            id="current-task"
+            type="text"
+            className="task-input"
+            value={currentTask}
+            onChange={handleTaskChange}
+            placeholder="Enter your focus task..."
+            maxLength={100}
+            disabled={false}
+          />
+          {currentTask && isRunning && (
+            <div className="current-task-display" aria-live="polite">
+              <span className="task-prefix">Focusing on:</span>
+              <span className="task-text">{currentTask}</span>
+            </div>
+          )}
+        </div>
+      )}
       
       <div className="timer-display">
         <svg className="progress-ring" aria-hidden="true">
