@@ -628,6 +628,72 @@ function PomodoroTimer() {
         </div>
       </div>
       
+      {/* Affiliate Book Shelf */}
+      <div className="book-shelf">
+        <h3 className="book-shelf-title">Recommended Reading</h3>
+        <p className="book-shelf-subtitle">Books to enhance your focus and productivity</p>
+        
+        <div className="book-grid">
+          <a 
+            href="https://amzn.to/4l1wdEs" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="book-card"
+            onClick={() => trackFeatureUsage('affiliate_click', 'atomic_habits')}
+          >
+            <div className="book-cover">
+              <div className="book-placeholder">📚</div>
+            </div>
+            <div className="book-info">
+              <h4 className="book-title">Atomic Habits</h4>
+              <p className="book-author">James Clear</p>
+              <p className="book-description">Build tiny changes that lead to remarkable focus improvements</p>
+            </div>
+          </a>
+          
+          <a 
+            href="https://amazon.com/dp/1455586692?tag=YOUR-ASSOCIATE-ID-HERE" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="book-card"
+            onClick={() => trackFeatureUsage('affiliate_click', 'deep_work')}
+          >
+            <div className="book-cover">
+              <div className="book-placeholder">🧠</div>
+            </div>
+            <div className="book-info">
+              <h4 className="book-title">Deep Work</h4>
+              <p className="book-author">Cal Newport</p>
+              <p className="book-description">Master distraction-free concentration in our connected world</p>
+            </div>
+          </a>
+          
+          <a 
+            href="https://amazon.com/dp/1250158265?tag=YOUR-ASSOCIATE-ID-HERE" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="book-card"
+            onClick={() => trackFeatureUsage('affiliate_click', 'adhd_advantage')}
+          >
+            <div className="book-cover">
+              <div className="book-placeholder">⚡</div>
+            </div>
+            <div className="book-info">
+              <h4 className="book-title">The ADHD Advantage</h4>
+              <p className="book-author">Dale Archer</p>
+              <p className="book-description">Transform your ADHD traits into powerful productivity tools</p>
+            </div>
+          </a>
+        </div>
+        
+        <p className="affiliate-disclosure">
+          <small>
+            💡 As an Amazon Associate, we earn from qualifying purchases. 
+            These recommendations support the development of this free timer.
+          </small>
+        </p>
+      </div>
+      
       {/* Status announcements for screen readers */}
       <div 
         className="timer-status" 
