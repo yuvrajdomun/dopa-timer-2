@@ -63,6 +63,15 @@ function PomodoroTimer() {
   const [firstTaskInput, setFirstTaskInput] = useState(true)
   const [isDataLoaded, setIsDataLoaded] = useState(false)
   const [saveIndicator, setSaveIndicator] = useState('')
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check for saved preference first
+    const savedTheme = localStorage.getItem('dopaflow-theme')
+    if (savedTheme) {
+      return savedTheme === 'dark'
+    }
+    // Default to system preference
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+  })
   
   const intervalRef = useRef(null)
   const audioRef = useRef(null)
@@ -296,6 +305,21 @@ function PomodoroTimer() {
   const start5MinuteSprint = () => startMicroSprint(5)
   const start10MinuteSprint = () => startMicroSprint(10)
   
+  // Dark mode toggle function
+  const toggleDarkMode = () => {
+    const newMode = !darkMode
+    setDarkMode(newMode)
+    
+    // Save preference to localStorage
+    localStorage.setItem('dopaflow-theme', newMode ? 'dark' : 'light')
+    
+    // Track dark mode usage
+    trackFeatureUsage('dark_mode_toggle', newMode ? 'enabled' : 'disabled')
+    
+    // Show feedback to user
+    showSaveIndicator(newMode ? 'Dark mode enabled' : 'Light mode enabled')
+  }
+  
   // Update slider progress visualization
   const updateSliderProgress = (sliderId, value, min, max) => {
     const slider = document.getElementById(sliderId)
@@ -409,6 +433,11 @@ function PomodoroTimer() {
             start5MinuteSprint()
           }
           break
+        case 'd':
+          e.preventDefault()
+          trackKeyboardShortcut('d', 'dark_mode_toggle')
+          toggleDarkMode()
+          break
         case '1':
           // Check if next key is '0' for 10-minute sprint
           if (!isRunning && currentState === TIMER_STATES.WORK) {
@@ -424,6 +453,39 @@ function PomodoroTimer() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [isRunning])
   
+  // Dark mode theme application
+  useEffect(() => {
+    // Apply theme to document
+    if (darkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark')
+    } else {
+      document.documentElement.removeAttribute('data-theme')
+    }
+    
+    // Update meta theme-color for mobile browsers
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]')
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', darkMode ? '#1a2025' : '#7ab5b5')
+    }
+  }, [darkMode])
+
+  // Listen for system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    
+    const handleChange = (e) => {
+      // Only auto-update if user hasn't set a manual preference
+      const savedTheme = localStorage.getItem('dopaflow-theme')
+      if (!savedTheme) {
+        setDarkMode(e.matches)
+        trackFeatureUsage('system_theme_change', e.matches ? 'dark' : 'light')
+      }
+    }
+    
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
+
   // Track accessibility preferences
   useEffect(() => {
     // Check for reduced motion preference
@@ -438,8 +500,9 @@ function PomodoroTimer() {
       trackHighContrastDetected()
     }
     
-    // Track initial page load
+    // Track initial page load and theme preference
     trackFeatureUsage('page_load')
+    trackFeatureUsage('initial_theme', darkMode ? 'dark' : 'light')
   }, [])
   
   // Track page visibility changes for engagement analytics
@@ -655,6 +718,21 @@ function PomodoroTimer() {
 
   return (
     <main className="timer-container" data-state={currentState} data-overtime={isOvertime}>
+      {/* Dark Mode Toggle */}
+      <button
+        className="dark-mode-toggle"
+        onClick={toggleDarkMode}
+        aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        <span className="dark-mode-toggle-icon" aria-hidden="true">
+          {darkMode ? '☀️' : '🌙'}
+        </span>
+        <span className="dark-mode-toggle-label">
+          {darkMode ? 'Light' : 'Dark'}
+        </span>
+      </button>
+
       {/* Storage status indicator */}
       {!isStorageAvailable() && (
         <div className="storage-warning" role="alert">
@@ -936,12 +1014,12 @@ function PomodoroTimer() {
       
       {/* Keyboard shortcuts help */}
       <div className="sr-only">
-        Keyboard shortcuts: Space to start/pause, R to reset, S to skip, 5 for 5-minute sprint
+        Keyboard shortcuts: Space to start/pause, R to reset, S to skip, D for dark mode, 5 for 5-minute sprint
       </div>
       
       {/* Visible keyboard shortcuts indicator */}
       <div className="keyboard-shortcuts">
-        <kbd>Space</kbd> Start/Pause • <kbd>R</kbd> Reset • <kbd>S</kbd> Skip
+        <kbd>Space</kbd> Start/Pause • <kbd>R</kbd> Reset • <kbd>S</kbd> Skip • <kbd>D</kbd> Dark Mode
         {!isRunning && currentState === TIMER_STATES.WORK && (
           <span> • <kbd>5</kbd> Quick Sprint</span>
         )}

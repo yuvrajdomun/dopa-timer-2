@@ -63,6 +63,58 @@
   --border-subtle: 1px solid rgba(122, 181, 181, 0.2);
 }
 
+/* Dark Mode Theme - High Contrast & ADHD-Friendly */
+[data-theme="dark"] {
+  /* Dark Mode Sea Glass Palette - Enhanced contrast for accessibility */
+  --clr-background: #0f1419;
+  --clr-surface: #1a2025;
+  --clr-text-primary: #e6f1f5;
+  --clr-text-secondary: #b8c5cd;
+  --clr-accent: #6dd4d4;
+  --clr-progress-ring: #5fb8c4;
+  --clr-alert: #f4c430;
+
+  /* High-contrast Timer State Colors for dark mode */
+  --clr-work: #5fb8c4;
+  --clr-short-break: #7bc17b;
+  --clr-long-break: #a594d9;
+
+  /* Dark mode variations for visual hierarchy */
+  --clr-background-soft: #13181e;
+  --clr-surface-soft: #1e262c;
+  --clr-accent-light: rgba(109, 212, 212, 0.15);
+  --clr-accent-lighter: rgba(109, 212, 212, 0.08);
+
+  /* Enhanced shadows for dark mode depth */
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-focus: 0 0 0 3px var(--clr-accent-light);
+  --border-subtle: 1px solid rgba(109, 212, 212, 0.25);
+}
+
+/* System dark mode preference detection */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    /* Apply dark theme if no manual preference is set */
+    --clr-background: #0f1419;
+    --clr-surface: #1a2025;
+    --clr-text-primary: #e6f1f5;
+    --clr-text-secondary: #b8c5cd;
+    --clr-accent: #6dd4d4;
+    --clr-progress-ring: #5fb8c4;
+    --clr-alert: #f4c430;
+    --clr-work: #5fb8c4;
+    --clr-short-break: #7bc17b;
+    --clr-long-break: #a594d9;
+    --clr-background-soft: #13181e;
+    --clr-surface-soft: #1e262c;
+    --clr-accent-light: rgba(109, 212, 212, 0.15);
+    --clr-accent-lighter: rgba(109, 212, 212, 0.08);
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-focus: 0 0 0 3px var(--clr-accent-light);
+    --border-subtle: 1px solid rgba(109, 212, 212, 0.25);
+  }
+}
+
 /* High contrast mode */
 @media (prefers-contrast: high) {
   :root {
