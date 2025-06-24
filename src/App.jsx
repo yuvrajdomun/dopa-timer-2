@@ -317,15 +317,22 @@ function PomodoroTimer() {
     
     // Manually apply/remove the attribute as a fallback
     if (newMode) {
+      // Switching TO dark mode
       document.documentElement.setAttribute('data-theme', 'dark')
       document.body.style.backgroundColor = '#0f1419'
       document.body.style.color = '#e6f1f5'
-      console.log('FORCED DARK MODE ON') // Debug log
+      console.log('✅ SWITCHED TO DARK MODE') // Debug log
     } else {
+      // Switching TO light mode
       document.documentElement.removeAttribute('data-theme')
-      document.body.style.backgroundColor = ''
-      document.body.style.color = ''
-      console.log('FORCED DARK MODE OFF') // Debug log
+      document.body.style.backgroundColor = '#f3f7f8'  // Light mode background
+      document.body.style.color = '#485862'  // Light mode text
+      setTimeout(() => {
+        // Reset to CSS defaults after a moment
+        document.body.style.backgroundColor = ''
+        document.body.style.color = ''
+      }, 100)
+      console.log('✅ SWITCHED TO LIGHT MODE') // Debug log
     }
     
     // Save preference to localStorage
@@ -335,7 +342,7 @@ function PomodoroTimer() {
     trackFeatureUsage('dark_mode_toggle', newMode ? 'enabled' : 'disabled')
     
     // Show feedback to user
-    showSaveIndicator(newMode ? 'Dark mode enabled' : 'Light mode enabled')
+    showSaveIndicator(newMode ? '🌙 Dark mode enabled' : '☀️ Light mode enabled')
   }
   
   // Update slider progress visualization
@@ -478,10 +485,19 @@ function PomodoroTimer() {
     // Apply theme to document
     if (darkMode) {
       document.documentElement.setAttribute('data-theme', 'dark')
-      console.log('Set data-theme="dark" on document') // Debug log
+      document.body.style.backgroundColor = '#0f1419'
+      document.body.style.color = '#e6f1f5'
+      console.log('✅ Applied dark theme on mount/change') // Debug log
     } else {
       document.documentElement.removeAttribute('data-theme')
-      console.log('Removed data-theme from document') // Debug log
+      document.body.style.backgroundColor = '#f3f7f8'
+      document.body.style.color = '#485862'
+      // Reset to CSS defaults after brief override
+      setTimeout(() => {
+        document.body.style.backgroundColor = ''
+        document.body.style.color = ''
+      }, 100)
+      console.log('✅ Applied light theme on mount/change') // Debug log
     }
     
     // Update meta theme-color for mobile browsers
@@ -738,13 +754,13 @@ function PomodoroTimer() {
     )
   }
 
-  console.log('Rendering with darkMode state:', darkMode) // Debug log
+  // console.log('Rendering with darkMode state:', darkMode) // Debug log (commented out to reduce noise)
 
   return (
     <main className="timer-container" data-state={currentState} data-overtime={isOvertime}>
       {/* Dark Mode Toggle */}
       <button
-        className="dark-mode-toggle"
+        className={`dark-mode-toggle ${darkMode ? 'dark-mode-active' : 'light-mode-active'}`}
         onClick={toggleDarkMode}
         aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
         title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -754,6 +770,9 @@ function PomodoroTimer() {
         </span>
         <span className="dark-mode-toggle-label">
           {darkMode ? 'Light' : 'Dark'}
+        </span>
+        <span className="dark-mode-current-state">
+          ({darkMode ? 'Dark Mode' : 'Light Mode'})
         </span>
       </button>
 

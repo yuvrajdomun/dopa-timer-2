@@ -685,34 +685,47 @@
   right: var(--space-md);
   background: var(--clr-surface);
   border: 2px solid var(--clr-accent);
-  padding: var(--space-xs);
+  padding: var(--space-sm);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-duration) var(--transition-easing);
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
+  flex-direction: column;
+  gap: 2px;
   color: var(--clr-text-primary);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: var(--letter-spacing-wide);
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 60px;
+  min-width: 80px;
   z-index: 100;
   box-shadow: var(--shadow-soft);
+  text-align: center;
 }
 
-.dark-mode-toggle:hover {
-  background-color: var(--clr-accent-lighter);
-  color: var(--clr-text-primary);
+/* Light Mode Active State */
+.dark-mode-toggle.light-mode-active {
+  background-color: #f3f7f8;
+  color: #485862;
+  border-color: #7ab5b5;
+}
+
+.dark-mode-toggle.light-mode-active:hover {
+  background-color: #e8f0f0;
   transform: translateY(-1px);
 }
 
-/* Make dark mode toggle more obvious when in dark mode */
-html[data-theme="dark"] .dark-mode-toggle {
-  background-color: #6dd4d4 !important;
-  color: #0f1419 !important;
-  border-color: #6dd4d4 !important;
+/* Dark Mode Active State */
+.dark-mode-toggle.dark-mode-active {
+  background-color: #6dd4d4;
+  color: #0f1419;
+  border-color: #6dd4d4;
+}
+
+.dark-mode-toggle.dark-mode-active:hover {
+  background-color: #5fc7c7;
+  transform: translateY(-1px);
 }
 
 .dark-mode-toggle:focus-visible {
@@ -721,8 +734,9 @@ html[data-theme="dark"] .dark-mode-toggle {
 }
 
 .dark-mode-toggle-icon {
-  font-size: 18px;
+  font-size: 20px;
   transition: transform var(--transition-duration) var(--transition-easing);
+  margin-bottom: 2px;
 }
 
 .dark-mode-toggle:hover .dark-mode-toggle-icon {
@@ -730,21 +744,36 @@ html[data-theme="dark"] .dark-mode-toggle {
 }
 
 .dark-mode-toggle-label {
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 1px;
 }
 
-/* Hide dark mode label on small screens to save space */
-@media (max-width: 480px) {
-  .dark-mode-toggle-label {
-    display: none;
-  }
+.dark-mode-current-state {
+  font-size: 9px;
+  opacity: 0.7;
+  font-weight: 400;
+  letter-spacing: 0px;
+}
 
+/* Responsive dark mode toggle */
+@media (max-width: 480px) {
   .dark-mode-toggle {
     top: var(--space-sm);
     right: var(--space-sm);
+    min-height: 50px;
+    min-width: 60px;
     padding: var(--space-xs);
+  }
+
+  .dark-mode-toggle-label {
+    font-size: 10px;
+  }
+
+  .dark-mode-current-state {
+    font-size: 8px;
   }
 }
 
