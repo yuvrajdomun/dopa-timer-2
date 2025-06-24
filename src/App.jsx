@@ -14,7 +14,9 @@ import {
   trackReducedMotionDetected,
   trackHighContrastDetected,
   trackPageVisibility,
-  trackFeatureUsage
+  trackFeatureUsage,
+  trackAffiliateClick,
+  trackBookShelfView,
 } from './utils/analytics.js'
 import {
   saveCurrentTask,
@@ -65,6 +67,7 @@ function PomodoroTimer() {
   const audioRef = useRef(null)
   const pageVisibilityStartTime = useRef(Date.now())
   const saveIndicatorTimeoutRef = useRef(null)
+  const pageStartTime = useRef(Date.now())
 
   // Show save indicator to user
   const showSaveIndicator = useCallback((message, isError = false) => {
@@ -94,6 +97,58 @@ function PomodoroTimer() {
     const sign = seconds < 0 ? '-' : ''
     return `${sign}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }, [])
+  
+  // Book data for affiliate tracking
+  const bookData = {
+    atomic_habits: {
+      id: 'atomic_habits',
+      title: 'Atomic Habits',
+      author: 'James Clear',
+      url: 'https://amzn.to/4l1wdEs',
+      description: 'Build tiny changes that lead to remarkable focus improvements'
+    },
+    deep_work: {
+      id: 'deep_work',
+      title: 'Deep Work',
+      author: 'Cal Newport',
+      url: 'https://amzn.to/46dtx1P',
+      description: 'Master distraction-free concentration in our connected world'
+    },
+    adhd_advantage: {
+      id: 'adhd_advantage',
+      title: 'The ADHD Advantage',
+      author: 'Dale Archer',
+      url: 'https://amzn.to/4ng5JR6',
+      description: 'Transform your ADHD traits into powerful productivity tools'
+    }
+  }
+  
+  // Get current timer context for tracking
+  const getTimerContext = () => ({
+    currentState,
+    session,
+    timeLeft,
+    isRunning,
+    isOvertime,
+    pageStartTime: pageStartTime.current
+  })
+  
+  // Handle affiliate link clicks with enhanced tracking
+  const handleAffiliateClick = (bookId) => {
+    const book = bookData[bookId]
+    const context = getTimerContext()
+    
+    // Track the affiliate click with detailed context
+    trackAffiliateClick(book, context)
+    
+    // Also track as feature usage for backwards compatibility
+    trackFeatureUsage('affiliate_click', bookId)
+  }
+  
+  // Track book card hover for engagement analysis
+  const handleBookHover = (bookId, action) => {
+    trackFeatureUsage(`book_${action}`, bookId)
+  }
   
   // Handle timer completion with comprehensive tracking
   const handleTimerComplete = useCallback(() => {
@@ -346,6 +401,46 @@ function PomodoroTimer() {
       trackFeatureUsage('app_session_end', sessionDuration)
     }
   }, [])
+
+  // Track book shelf view when component loads
+  useEffect(() => {
+    // Track that user has seen the book shelf
+    const context = getTimerContext()
+    trackBookShelfView(context)
+    
+    // Track when books are visible (scroll-based tracking)
+    const handleScroll = () => {
+      const bookShelf = document.querySelector('.book-shelf')
+      if (bookShelf) {
+        const rect = bookShelf.getBoundingClientRect()
+        const isVisible = rect.top < window.innerHeight && rect.bottom > 0
+        
+        if (isVisible) {
+          trackFeatureUsage('book_shelf_scrolled_to')
+          // Remove listener after first view
+          window.removeEventListener('scroll', handleScroll)
+        }
+      }
+    }
+    
+    // Add scroll listener with throttling
+    let scrollTimeout
+    const throttledScroll = () => {
+      if (!scrollTimeout) {
+        scrollTimeout = setTimeout(() => {
+          handleScroll()
+          scrollTimeout = null
+        }, 100)
+      }
+    }
+    
+    window.addEventListener('scroll', throttledScroll)
+    
+    return () => {
+      window.removeEventListener('scroll', throttledScroll)
+      if (scrollTimeout) clearTimeout(scrollTimeout)
+    }
+  }, [currentState, session, timeLeft, isRunning, isOvertime])
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -639,7 +734,9 @@ function PomodoroTimer() {
             target="_blank" 
             rel="noopener noreferrer"
             className="book-card"
-            onClick={() => trackFeatureUsage('affiliate_click', 'atomic_habits')}
+            onClick={() => handleAffiliateClick('atomic_habits')}
+            onMouseEnter={() => handleBookHover('atomic_habits', 'hover')}
+            onMouseLeave={() => handleBookHover('atomic_habits', 'unhover')}
           >
             <div className="book-cover">
               <div className="book-placeholder">📚</div>
@@ -652,11 +749,13 @@ function PomodoroTimer() {
           </a>
           
           <a 
-            href="https://amazon.com/dp/1455586692?tag=YOUR-ASSOCIATE-ID-HERE" 
+            href="https://amzn.to/46dtx1P" 
             target="_blank" 
             rel="noopener noreferrer"
             className="book-card"
-            onClick={() => trackFeatureUsage('affiliate_click', 'deep_work')}
+            onClick={() => handleAffiliateClick('deep_work')}
+            onMouseEnter={() => handleBookHover('deep_work', 'hover')}
+            onMouseLeave={() => handleBookHover('deep_work', 'unhover')}
           >
             <div className="book-cover">
               <div className="book-placeholder">🧠</div>
@@ -669,11 +768,13 @@ function PomodoroTimer() {
           </a>
           
           <a 
-            href="https://amazon.com/dp/1250158265?tag=YOUR-ASSOCIATE-ID-HERE" 
+            href="https://amzn.to/4ng5JR6" 
             target="_blank" 
             rel="noopener noreferrer"
             className="book-card"
-            onClick={() => trackFeatureUsage('affiliate_click', 'adhd_advantage')}
+            onClick={() => handleAffiliateClick('adhd_advantage')}
+            onMouseEnter={() => handleBookHover('adhd_advantage', 'hover')}
+            onMouseLeave={() => handleBookHover('adhd_advantage', 'unhover')}
           >
             <div className="book-cover">
               <div className="book-placeholder">⚡</div>

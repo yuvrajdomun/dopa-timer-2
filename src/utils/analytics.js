@@ -191,6 +191,46 @@ export const trackFeatureUsage = (feature, usageCount = 1) => {
   });
 };
 
+// Affiliate Marketing Events
+export const trackAffiliateClick = (bookDetails, timerContext) => {
+  safeTrack("affiliate_click", {
+    book_id: bookDetails.id,
+    book_title: bookDetails.title,
+    book_author: bookDetails.author,
+    affiliate_url: bookDetails.url ? bookDetails.url.substring(0, 50) : null, // Truncate for privacy
+
+    // Timer context when clicked
+    timer_state: timerContext.currentState,
+    session_number: timerContext.session,
+    time_remaining_minutes: Math.round(timerContext.timeLeft / 60),
+    is_timer_running: timerContext.isRunning,
+    is_overtime: timerContext.isOvertime,
+
+    // User engagement data
+    page_time_minutes: Math.round(
+      (Date.now() - timerContext.pageStartTime) / 60000
+    ),
+    device_type: /Mobi|Android/i.test(navigator.userAgent)
+      ? "mobile"
+      : "desktop",
+
+    // Privacy-safe analytics
+    timestamp: new Date().toISOString(),
+    conversion_tracking_id: `${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`,
+  });
+};
+
+export const trackBookShelfView = (timerContext) => {
+  safeTrack("book_shelf_view", {
+    timer_state: timerContext.currentState,
+    session_number: timerContext.session,
+    is_timer_running: timerContext.isRunning,
+    timestamp: new Date().toISOString(),
+  });
+};
+
 // Privacy-conscious helper for batching events
 let eventQueue = [];
 let batchTimeout = null;
