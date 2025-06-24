@@ -112,6 +112,23 @@ export const trackDurationChange = (timerType, oldDuration, newDuration) => {
   });
 };
 
+export const trackSliderInteraction = (
+  timerType,
+  value,
+  min,
+  max,
+  interactionType = "change"
+) => {
+  safeTrack("slider_interaction", {
+    timer_type: timerType,
+    slider_value: value,
+    slider_min: min,
+    slider_max: max,
+    slider_percentage: Math.round(((value - min) / (max - min)) * 100),
+    interaction_type: interactionType, // 'change', 'focus', 'input'
+  });
+};
+
 // Session Progress Events
 export const trackSessionMilestone = (sessionNumber) => {
   const milestones = [1, 5, 10, 25, 50, 100];

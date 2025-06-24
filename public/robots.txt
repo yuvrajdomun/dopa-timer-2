@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://adhd-focus-timer.vercel.app/sitemap.xml
+
+# Allow all search engines to index
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block AI training crawlers (optional privacy measure)
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: / 

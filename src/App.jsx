@@ -8,6 +8,7 @@ import {
   trackTimerSkip,
   trackTaskInput,
   trackDurationChange,
+  trackSliderInteraction,
   trackSessionMilestone,
   trackPomodoroComplete,
   trackKeyboardShortcut,
@@ -295,16 +296,49 @@ function PomodoroTimer() {
   const start5MinuteSprint = () => startMicroSprint(5)
   const start10MinuteSprint = () => startMicroSprint(10)
   
+  // Update slider progress visualization
+  const updateSliderProgress = (sliderId, value, min, max) => {
+    const slider = document.getElementById(sliderId)
+    if (slider) {
+      const percentage = ((value - min) / (max - min)) * 100
+      slider.style.setProperty('--slider-progress', `${percentage}%`)
+    }
+  }
+
   const handleDurationChange = (state, minutes) => {
     const oldDuration = durations[state]
-    const seconds = Math.max(1, Math.min(99, minutes)) * 60
+    
+    // Determine valid range based on timer type
+    let minVal, maxVal
+    if (state === TIMER_STATES.WORK) {
+      minVal = 1
+      maxVal = 90
+    } else if (state === TIMER_STATES.SHORT_BREAK) {
+      minVal = 1
+      maxVal = 30
+    } else {
+      minVal = 5
+      maxVal = 60
+    }
+    
+    const clampedMinutes = Math.max(minVal, Math.min(maxVal, minutes))
+    const seconds = clampedMinutes * 60
     
     // Track duration change
     trackDurationChange(state, oldDuration, seconds)
+    trackSliderInteraction(state, clampedMinutes, minVal, maxVal, 'change')
     trackFeatureUsage('duration_change')
     
     const newDurations = { ...durations, [state]: seconds }
     setDurations(newDurations)
+    
+    // Update slider progress visualization
+    const sliderIds = {
+      [TIMER_STATES.WORK]: 'work-duration-slider',
+      [TIMER_STATES.SHORT_BREAK]: 'short-break-duration-slider',
+      [TIMER_STATES.LONG_BREAK]: 'long-break-duration-slider'
+    }
+    updateSliderProgress(sliderIds[state], clampedMinutes, minVal, maxVal)
     
     // Save immediately for duration changes (important setting)
     if (isDataLoaded) {
@@ -428,6 +462,16 @@ function PomodoroTimer() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [])
   
+  // Initialize slider progress on mount and when durations change
+  useEffect(() => {
+    if (isDataLoaded) {
+      // Initialize all slider progress bars
+      updateSliderProgress('work-duration-slider', durations[TIMER_STATES.WORK] / 60, 1, 90)
+      updateSliderProgress('short-break-duration-slider', durations[TIMER_STATES.SHORT_BREAK] / 60, 1, 30)
+      updateSliderProgress('long-break-duration-slider', durations[TIMER_STATES.LONG_BREAK] / 60, 5, 60)
+    }
+  }, [durations, isDataLoaded])
+
   // Track app engagement on mount
   useEffect(() => {
     const startTime = Date.now()
@@ -742,49 +786,69 @@ function PomodoroTimer() {
       )}
       
       <div className="timer-settings">
+        <h3 className="settings-title">Session Lengths</h3>
+        
         <div className="setting-group">
-          <label className="setting-label" htmlFor="work-duration">
-            Work (min)
+          <label className="setting-label" htmlFor="work-duration-slider">
+            Work: <span className="setting-value">{durations[TIMER_STATES.WORK] / 60} min</span>
           </label>
-          <input
-            id="work-duration"
-            className="setting-input"
-            type="number"
-            min="1"
-            max="99"
-            value={durations[TIMER_STATES.WORK] / 60}
-            onChange={(e) => handleDurationChange(TIMER_STATES.WORK, parseInt(e.target.value) || 25)}
-          />
+          <div className="slider-container">
+            <span className="slider-min">1</span>
+            <input
+              id="work-duration-slider"
+              className="setting-slider"
+              type="range"
+              min="1"
+              max="90"
+              step="1"
+              value={durations[TIMER_STATES.WORK] / 60}
+              onChange={(e) => handleDurationChange(TIMER_STATES.WORK, parseInt(e.target.value))}
+              aria-label={`Work session duration: ${durations[TIMER_STATES.WORK] / 60} minutes`}
+            />
+            <span className="slider-max">90</span>
+          </div>
         </div>
         
         <div className="setting-group">
-          <label className="setting-label" htmlFor="short-break-duration">
-            Short Break (min)
+          <label className="setting-label" htmlFor="short-break-duration-slider">
+            Short Break: <span className="setting-value">{durations[TIMER_STATES.SHORT_BREAK] / 60} min</span>
           </label>
-          <input
-            id="short-break-duration"
-            className="setting-input"
-            type="number"
-            min="1"
-            max="99"
-            value={durations[TIMER_STATES.SHORT_BREAK] / 60}
-            onChange={(e) => handleDurationChange(TIMER_STATES.SHORT_BREAK, parseInt(e.target.value) || 5)}
-          />
+          <div className="slider-container">
+            <span className="slider-min">1</span>
+            <input
+              id="short-break-duration-slider"
+              className="setting-slider"
+              type="range"
+              min="1"
+              max="30"
+              step="1"
+              value={durations[TIMER_STATES.SHORT_BREAK] / 60}
+              onChange={(e) => handleDurationChange(TIMER_STATES.SHORT_BREAK, parseInt(e.target.value))}
+              aria-label={`Short break duration: ${durations[TIMER_STATES.SHORT_BREAK] / 60} minutes`}
+            />
+            <span className="slider-max">30</span>
+          </div>
         </div>
         
         <div className="setting-group">
-          <label className="setting-label" htmlFor="long-break-duration">
-            Long Break (min)
+          <label className="setting-label" htmlFor="long-break-duration-slider">
+            Long Break: <span className="setting-value">{durations[TIMER_STATES.LONG_BREAK] / 60} min</span>
           </label>
-          <input
-            id="long-break-duration"
-            className="setting-input"
-            type="number"
-            min="1"
-            max="99"
-            value={durations[TIMER_STATES.LONG_BREAK] / 60}
-            onChange={(e) => handleDurationChange(TIMER_STATES.LONG_BREAK, parseInt(e.target.value) || 15)}
-          />
+          <div className="slider-container">
+            <span className="slider-min">5</span>
+            <input
+              id="long-break-duration-slider"
+              className="setting-slider"
+              type="range"
+              min="5"
+              max="60"
+              step="1"
+              value={durations[TIMER_STATES.LONG_BREAK] / 60}
+              onChange={(e) => handleDurationChange(TIMER_STATES.LONG_BREAK, parseInt(e.target.value))}
+              aria-label={`Long break duration: ${durations[TIMER_STATES.LONG_BREAK] / 60} minutes`}
+            />
+            <span className="slider-max">60</span>
+          </div>
         </div>
       </div>
       

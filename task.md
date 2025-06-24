@@ -12,7 +12,7 @@
 
 ## ♿ Phase 2 – Accessibility & Neuro-inclusivity
 
-- [ ] **Adjustable session lengths** (work & break sliders)
+- [x] **Adjustable session lengths** (work & break sliders)
 - [x] "**Micro-sprint**" 5- or 10-minute quick start button
 - [ ] **Prefers-reduced-motion** guard (disable ring animation if set)
 - [ ] High-contrast **dark mode** toggle
