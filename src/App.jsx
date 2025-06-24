@@ -309,31 +309,44 @@ function PomodoroTimer() {
   const start5MinuteSprint = () => startMicroSprint(5)
   const start10MinuteSprint = () => startMicroSprint(10)
   
-  // Dark mode toggle function
+  // Debug function to reset theme if stuck
+  const resetTheme = () => {
+    console.log('🔄 MANUAL THEME RESET')
+    // Clear everything
+    document.documentElement.removeAttribute('data-theme')
+    document.body.style.backgroundColor = ''
+    document.body.style.color = ''
+    localStorage.removeItem('dopaflow-theme')
+    setDarkMode(false)
+    console.log('✅ Theme reset to light mode')
+  }
+  
+  // Dark mode toggle function - simplified approach
   const toggleDarkMode = () => {
     const newMode = !darkMode
-    console.log('Toggling dark mode from', darkMode, 'to', newMode) // Debug log
+    console.log('🔄 Toggling from', darkMode ? 'DARK' : 'LIGHT', 'to', newMode ? 'DARK' : 'LIGHT') // Debug log
+    
+    // Clear any previous inline styles that might interfere
+    document.body.style.backgroundColor = ''
+    document.body.style.color = ''
+    
+    // Update state first
     setDarkMode(newMode)
     
-    // Manually apply/remove the attribute as a fallback
+    // Apply theme attribute
     if (newMode) {
-      // Switching TO dark mode
       document.documentElement.setAttribute('data-theme', 'dark')
-      document.body.style.backgroundColor = '#0f1419'
-      document.body.style.color = '#e6f1f5'
-      console.log('✅ SWITCHED TO DARK MODE') // Debug log
+      console.log('✅ SET data-theme="dark"') // Debug log
     } else {
-      // Switching TO light mode
       document.documentElement.removeAttribute('data-theme')
-      document.body.style.backgroundColor = '#f3f7f8'  // Light mode background
-      document.body.style.color = '#485862'  // Light mode text
-      setTimeout(() => {
-        // Reset to CSS defaults after a moment
-        document.body.style.backgroundColor = ''
-        document.body.style.color = ''
-      }, 100)
-      console.log('✅ SWITCHED TO LIGHT MODE') // Debug log
+      console.log('✅ REMOVED data-theme (back to light)') // Debug log
     }
+    
+    // Force a small delay to ensure state update
+    setTimeout(() => {
+      console.log('🎯 Current DOM theme:', document.documentElement.getAttribute('data-theme') || 'light')
+      console.log('🎯 Current React state:', newMode ? 'dark' : 'light')
+    }, 50)
     
     // Save preference to localStorage
     localStorage.setItem('dopaflow-theme', newMode ? 'dark' : 'light')
@@ -439,12 +452,6 @@ function PomodoroTimer() {
           trackKeyboardShortcut('space', action)
           isRunning ? pauseTimer() : startTimer()
           break
-        case 'r':
-          if (e.ctrlKey || e.metaKey) return // Don't interfere with browser refresh
-          e.preventDefault()
-          trackKeyboardShortcut('r', 'reset')
-          resetTimer()
-          break
         case 's':
           e.preventDefault()
           trackKeyboardShortcut('s', 'skip')
@@ -463,6 +470,19 @@ function PomodoroTimer() {
           trackKeyboardShortcut('d', 'dark_mode_toggle')
           toggleDarkMode()
           break
+        case 'r':
+          if (e.shiftKey) {
+            // Shift+R for theme reset (to avoid conflict with timer reset)
+            e.preventDefault()
+            resetTheme()
+            break
+          }
+          // Regular R for timer reset
+          if (e.ctrlKey || e.metaKey) return // Don't interfere with browser refresh
+          e.preventDefault()
+          trackKeyboardShortcut('r', 'reset')
+          resetTimer()
+          break
         case '1':
           // Check if next key is '0' for 10-minute sprint
           if (!isRunning && currentState === TIMER_STATES.WORK) {
@@ -478,26 +498,17 @@ function PomodoroTimer() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [isRunning])
   
-  // Dark mode theme application
+  // Dark mode theme application - simplified
   useEffect(() => {
-    console.log('Applying theme:', darkMode ? 'dark' : 'light') // Debug log
+    console.log('🔧 useEffect applying theme:', darkMode ? 'dark' : 'light') // Debug log
     
-    // Apply theme to document
+    // Apply theme to document (let CSS handle the styling)
     if (darkMode) {
       document.documentElement.setAttribute('data-theme', 'dark')
-      document.body.style.backgroundColor = '#0f1419'
-      document.body.style.color = '#e6f1f5'
-      console.log('✅ Applied dark theme on mount/change') // Debug log
+      console.log('✅ useEffect set data-theme="dark"') // Debug log
     } else {
       document.documentElement.removeAttribute('data-theme')
-      document.body.style.backgroundColor = '#f3f7f8'
-      document.body.style.color = '#485862'
-      // Reset to CSS defaults after brief override
-      setTimeout(() => {
-        document.body.style.backgroundColor = ''
-        document.body.style.color = ''
-      }, 100)
-      console.log('✅ Applied light theme on mount/change') // Debug log
+      console.log('✅ useEffect removed data-theme (light mode)') // Debug log
     }
     
     // Update meta theme-color for mobile browsers
@@ -1057,7 +1068,7 @@ function PomodoroTimer() {
       
       {/* Keyboard shortcuts help */}
       <div className="sr-only">
-        Keyboard shortcuts: Space to start/pause, R to reset, S to skip, D for dark mode, 5 for 5-minute sprint
+        Keyboard shortcuts: Space to start/pause, R to reset, S to skip, D for dark mode, Shift+R to reset theme if stuck, 5 for 5-minute sprint
       </div>
       
       {/* Visible keyboard shortcuts indicator */}
@@ -1066,6 +1077,7 @@ function PomodoroTimer() {
         {!isRunning && currentState === TIMER_STATES.WORK && (
           <span> • <kbd>5</kbd> Quick Sprint</span>
         )}
+        <span style={{opacity: 0.7}}> • <kbd>Shift+R</kbd> Reset Theme</span>
       </div>
 
       {/* Loading indicator while data loads */}
