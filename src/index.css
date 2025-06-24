@@ -63,6 +63,34 @@
   --border-subtle: 1px solid rgba(122, 181, 181, 0.2);
 }
 
+/* Light Mode Theme - Explicit declaration to override system preferences */
+html[data-theme="light"] {
+  /* Ultra Low-Stim Sea Glass Palette - Enhanced for ADHD/Autism */
+  --clr-background: #f3f7f8;
+  --clr-surface: #e8f0f0;
+  --clr-text-primary: #485862;
+  --clr-text-secondary: #6b7a85;
+  --clr-accent: #7ab5b5;
+  --clr-progress-ring: #5a8090;
+  --clr-alert: #f7d4a0;
+
+  /* Ultra-gentle Timer State Colors (max 35% saturation) */
+  --clr-work: #5a8090;
+  --clr-short-break: #6b8870;
+  --clr-long-break: #8884c0;
+
+  /* Subtle variations for visual hierarchy */
+  --clr-background-soft: #f8fafb;
+  --clr-surface-soft: #ecf2f2;
+  --clr-accent-light: rgba(122, 181, 181, 0.1);
+  --clr-accent-lighter: rgba(122, 181, 181, 0.05);
+
+  /* Low-stim visual effects */
+  --shadow-soft: 0 2px 8px rgba(72, 88, 98, 0.08);
+  --shadow-focus: 0 0 0 3px var(--clr-accent-light);
+  --border-subtle: 1px solid rgba(122, 181, 181, 0.2);
+}
+
 /* Dark Mode Theme - High Contrast & ADHD-Friendly */
 html[data-theme="dark"] {
   /* Dark Mode Sea Glass Palette - Enhanced contrast for accessibility */
@@ -91,6 +119,21 @@ html[data-theme="dark"] {
   --border-subtle: 1px solid rgba(109, 212, 212, 0.25);
 }
 
+/* Clean light mode styles - explicit override */
+html[data-theme="light"] body {
+  background-color: var(--clr-background);
+  color: var(--clr-text-primary);
+}
+
+html[data-theme="light"] .timer-container {
+  background-color: var(--clr-surface);
+  color: var(--clr-text-primary);
+}
+
+html[data-theme="light"] .timer-title {
+  color: var(--clr-text-primary);
+}
+
 /* Clean dark mode styles without forced overrides */
 html[data-theme="dark"] body {
   background-color: var(--clr-background);
@@ -106,7 +149,7 @@ html[data-theme="dark"] .timer-title {
   color: var(--clr-text-primary);
 }
 
-/* System dark mode preference detection */
+/* System dark mode preference detection - only when no manual theme is set */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     /* Apply dark theme if no manual preference is set */

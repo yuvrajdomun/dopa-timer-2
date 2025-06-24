@@ -18,7 +18,7 @@
 - [x] High-contrast **dark mode** toggle
 - [ ] **Adjustable font size** (sm / md / lg) saved per user
 - [ ] Optional **discrete audio cues** instead of visual colour shifts
-- [ ] **Consistent, predictable layout** (no content jumps)
+- [ ] **Consistent, predictable layout** (no content jumps)gi
 
 ## 🔄 Phase 3 – Engagement & Motivation
 

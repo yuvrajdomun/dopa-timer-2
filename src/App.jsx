@@ -313,7 +313,7 @@ function PomodoroTimer() {
   const resetTheme = () => {
     console.log('🔄 MANUAL THEME RESET')
     // Clear everything
-    document.documentElement.removeAttribute('data-theme')
+    document.documentElement.setAttribute('data-theme', 'light')
     document.body.style.backgroundColor = ''
     document.body.style.color = ''
     localStorage.removeItem('dopaflow-theme')
@@ -321,7 +321,7 @@ function PomodoroTimer() {
     console.log('✅ Theme reset to light mode')
   }
   
-  // Dark mode toggle function - simplified approach
+  // Dark mode toggle function - explicitly set theme values
   const toggleDarkMode = () => {
     const newMode = !darkMode
     console.log('🔄 Toggling from', darkMode ? 'DARK' : 'LIGHT', 'to', newMode ? 'DARK' : 'LIGHT') // Debug log
@@ -333,18 +333,18 @@ function PomodoroTimer() {
     // Update state first
     setDarkMode(newMode)
     
-    // Apply theme attribute
+    // Apply theme attribute - explicitly set both values to override system preference
     if (newMode) {
       document.documentElement.setAttribute('data-theme', 'dark')
       console.log('✅ SET data-theme="dark"') // Debug log
     } else {
-      document.documentElement.removeAttribute('data-theme')
-      console.log('✅ REMOVED data-theme (back to light)') // Debug log
+      document.documentElement.setAttribute('data-theme', 'light')
+      console.log('✅ SET data-theme="light"') // Debug log
     }
     
     // Force a small delay to ensure state update
     setTimeout(() => {
-      console.log('🎯 Current DOM theme:', document.documentElement.getAttribute('data-theme') || 'light')
+      console.log('🎯 Current DOM theme:', document.documentElement.getAttribute('data-theme'))
       console.log('🎯 Current React state:', newMode ? 'dark' : 'light')
     }, 50)
     
@@ -471,17 +471,19 @@ function PomodoroTimer() {
           toggleDarkMode()
           break
         case 'r':
+        case 'R':
           if (e.shiftKey) {
             // Shift+R for theme reset (to avoid conflict with timer reset)
             e.preventDefault()
+            trackKeyboardShortcut('shift_r', 'theme_reset')
             resetTheme()
-            break
+          } else {
+            // Regular R for timer reset
+            if (e.ctrlKey || e.metaKey) return // Don't interfere with browser refresh
+            e.preventDefault()
+            trackKeyboardShortcut('r', 'reset')
+            resetTimer()
           }
-          // Regular R for timer reset
-          if (e.ctrlKey || e.metaKey) return // Don't interfere with browser refresh
-          e.preventDefault()
-          trackKeyboardShortcut('r', 'reset')
-          resetTimer()
           break
         case '1':
           // Check if next key is '0' for 10-minute sprint
@@ -496,19 +498,39 @@ function PomodoroTimer() {
     
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [isRunning])
+  }, [isRunning, currentState, toggleDarkMode, resetTheme, startTimer, pauseTimer, resetTimer, skipToNext, start5MinuteSprint])
   
-  // Dark mode theme application - simplified
+  // Initialize theme on mount
   useEffect(() => {
-    console.log('🔧 useEffect applying theme:', darkMode ? 'dark' : 'light') // Debug log
+    console.log('🎯 Initializing theme on mount:', darkMode ? 'dark' : 'light') // Debug log
     
-    // Apply theme to document (let CSS handle the styling)
+    // Apply theme immediately on mount - explicitly set both dark and light
     if (darkMode) {
       document.documentElement.setAttribute('data-theme', 'dark')
-      console.log('✅ useEffect set data-theme="dark"') // Debug log
+      console.log('✅ Initial theme set to dark') // Debug log
     } else {
-      document.documentElement.removeAttribute('data-theme')
-      console.log('✅ useEffect removed data-theme (light mode)') // Debug log
+      document.documentElement.setAttribute('data-theme', 'light')
+      console.log('✅ Initial theme set to light') // Debug log
+    }
+    
+    // Update meta theme-color for mobile browsers
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]')
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', darkMode ? '#1a2025' : '#7ab5b5')
+    }
+  }, []) // Only run on mount
+  
+  // Dark mode theme application - when state changes
+  useEffect(() => {
+    console.log('🔧 Theme state changed to:', darkMode ? 'dark' : 'light') // Debug log
+    
+    // Apply theme to document - explicitly set both dark and light to override system preference
+    if (darkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark')
+      console.log('✅ DOM updated to dark mode') // Debug log
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light')
+      console.log('✅ DOM updated to light mode') // Debug log
     }
     
     // Update meta theme-color for mobile browsers
