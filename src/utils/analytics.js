@@ -30,7 +30,7 @@ const safeTrack = (eventName, properties = {}) => {
     track(eventName, enhancedProps);
   } catch (error) {
     // Silently fail if tracking fails - don't break the app
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.DEV) {
       console.warn("Analytics tracking failed:", error);
     }
   }

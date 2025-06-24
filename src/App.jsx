@@ -27,8 +27,6 @@ import {
   loadDurations,
   saveSessionData,
   loadSessionData,
-  saveUserPreferences,
-  loadUserPreferences,
   isStorageAvailable
 } from './utils/localStorage.js'
 
@@ -84,7 +82,7 @@ function PomodoroTimer() {
   const pageStartTime = useRef(Date.now())
 
   // Show save indicator to user
-  const showSaveIndicator = useCallback((message, isError = false) => {
+  const showSaveIndicator = useCallback((message) => {
     setSaveIndicator(message)
     
     // Clear any existing timeout
@@ -446,12 +444,13 @@ function PomodoroTimer() {
       if (e.target.type === 'number' || e.target.type === 'text') return // Don't interfere with input fields
       
       switch (e.key) {
-        case ' ':
+        case ' ': {
           e.preventDefault()
           const action = isRunning ? 'pause' : 'start'
           trackKeyboardShortcut('space', action)
           isRunning ? pauseTimer() : startTimer()
           break
+        }
         case 's':
           e.preventDefault()
           trackKeyboardShortcut('s', 'skip')
@@ -719,7 +718,7 @@ function PomodoroTimer() {
       if (success) {
         showSaveIndicator('Settings saved')
       } else {
-        showSaveIndicator('Save failed', true)
+        showSaveIndicator('Save failed')
       }
       trackFeatureUsage('localStorage_save_durations')
     }
