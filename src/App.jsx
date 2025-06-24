@@ -273,6 +273,27 @@ function PomodoroTimer() {
     
     handleTimerComplete()
   }
+
+  // Micro-sprint functions for ADHD users who need shorter focus sessions
+  const startMicroSprint = (minutes) => {
+    // Set timer to work state
+    setCurrentState(TIMER_STATES.WORK)
+    const seconds = minutes * 60
+    setTimeLeft(seconds)
+    setIsRunning(true)
+    setIsOvertime(false)
+    setStatusMessage(`${minutes}-minute micro-sprint started! 🚀`)
+    
+    // Clear status message after 3 seconds
+    setTimeout(() => setStatusMessage(''), 3000)
+    
+    // Track micro-sprint usage
+    trackFeatureUsage('micro_sprint_start', `${minutes}_minutes`)
+    trackTimerStart('micro_sprint', seconds, currentTask.length > 0)
+  }
+
+  const start5MinuteSprint = () => startMicroSprint(5)
+  const start10MinuteSprint = () => startMicroSprint(10)
   
   const handleDurationChange = (state, minutes) => {
     const oldDuration = durations[state]
@@ -345,6 +366,22 @@ function PomodoroTimer() {
           e.preventDefault()
           trackKeyboardShortcut('s', 'skip')
           skipToNext()
+          break
+        case '5':
+          // Only allow micro-sprint shortcuts when timer is not running and in work state
+          if (!isRunning && currentState === TIMER_STATES.WORK) {
+            e.preventDefault()
+            trackKeyboardShortcut('5', 'micro_sprint_5min')
+            start5MinuteSprint()
+          }
+          break
+        case '1':
+          // Check if next key is '0' for 10-minute sprint
+          if (!isRunning && currentState === TIMER_STATES.WORK) {
+            // This is a simple implementation - for more robust handling, we'd need key sequence detection
+            e.preventDefault()
+            trackKeyboardShortcut('1', 'micro_sprint_10min_attempt')
+          }
           break
       }
     }
@@ -676,6 +713,34 @@ function PomodoroTimer() {
         </button>
       </div>
       
+      {/* Micro-Sprint Quick Start Options */}
+      {!isRunning && currentState === TIMER_STATES.WORK && (
+        <div className="micro-sprint-section">
+          <h3 className="micro-sprint-title">Quick Start</h3>
+          <p className="micro-sprint-subtitle">Perfect for ADHD: short, manageable focus sessions</p>
+          
+          <div className="micro-sprint-controls">
+            <button
+              className="btn btn-micro-sprint"
+              onClick={start5MinuteSprint}
+              aria-label="Start 5-minute micro-sprint session"
+            >
+              <span className="sprint-duration">5 min</span>
+              <span className="sprint-label">Micro-Sprint</span>
+            </button>
+            
+            <button
+              className="btn btn-micro-sprint"
+              onClick={start10MinuteSprint}
+              aria-label="Start 10-minute micro-sprint session"
+            >
+              <span className="sprint-duration">10 min</span>
+              <span className="sprint-label">Quick Focus</span>
+            </button>
+          </div>
+        </div>
+      )}
+      
       <div className="timer-settings">
         <div className="setting-group">
           <label className="setting-label" htmlFor="work-duration">
@@ -807,12 +872,15 @@ function PomodoroTimer() {
       
       {/* Keyboard shortcuts help */}
       <div className="sr-only">
-        Keyboard shortcuts: Space to start/pause, R to reset, S to skip
+        Keyboard shortcuts: Space to start/pause, R to reset, S to skip, 5 for 5-minute sprint
       </div>
       
       {/* Visible keyboard shortcuts indicator */}
       <div className="keyboard-shortcuts">
         <kbd>Space</kbd> Start/Pause • <kbd>R</kbd> Reset • <kbd>S</kbd> Skip
+        {!isRunning && currentState === TIMER_STATES.WORK && (
+          <span> • <kbd>5</kbd> Quick Sprint</span>
+        )}
       </div>
 
       {/* Loading indicator while data loads */}

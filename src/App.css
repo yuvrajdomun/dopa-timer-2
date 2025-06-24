@@ -322,6 +322,82 @@
   color: white;
 }
 
+/* Micro-Sprint Section */
+.micro-sprint-section {
+  margin: var(--space-lg) 0;
+  padding: var(--space-md);
+  background-color: var(--clr-accent-lighter);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--clr-accent);
+  text-align: center;
+}
+
+.micro-sprint-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--clr-text-primary);
+  margin-bottom: var(--space-xs);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.micro-sprint-subtitle {
+  font-size: 14px;
+  color: var(--clr-text-secondary);
+  margin-bottom: var(--space-md);
+  font-weight: 400;
+  opacity: 0.9;
+  line-height: var(--line-height-base);
+}
+
+.micro-sprint-controls {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-micro-sprint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--clr-background);
+  border: 2px solid var(--clr-accent);
+  border-radius: var(--radius-md);
+  color: var(--clr-accent);
+  font-weight: 600;
+  min-width: 100px;
+  min-height: 70px;
+  transition: all var(--transition-duration) var(--transition-easing);
+}
+
+.btn-micro-sprint:hover {
+  background-color: var(--clr-accent);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(122, 181, 181, 0.2);
+}
+
+.sprint-duration {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.sprint-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.btn-micro-sprint:hover .sprint-label {
+  opacity: 1;
+}
+
 /* Settings */
 .timer-settings {
   display: flex;
@@ -727,6 +803,33 @@
   .book-description {
     font-size: clamp(11px, 2.5vw, 13px);
   }
+
+  .micro-sprint-controls {
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: stretch;
+  }
+
+  .btn-micro-sprint {
+    min-width: auto;
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+    min-height: 60px;
+    padding: var(--space-sm);
+  }
+
+  .micro-sprint-title {
+    font-size: clamp(16px, 4vw, 18px);
+  }
+
+  .micro-sprint-subtitle {
+    font-size: clamp(12px, 3vw, 14px);
+  }
+
+  .sprint-duration {
+    font-size: clamp(16px, 4vw, 18px);
+  }
 }
 
 /* ========================================
@@ -842,6 +945,16 @@
   }
 
   .book-card:hover {
+    transform: none; /* Disable transform on touch devices */
+  }
+
+  .btn-micro-sprint {
+    min-height: 70px;
+    padding: var(--space-md);
+    touch-action: manipulation;
+  }
+
+  .btn-micro-sprint:hover {
     transform: none; /* Disable transform on touch devices */
   }
 }
