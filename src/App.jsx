@@ -789,74 +789,72 @@ function PomodoroTimer() {
   // console.log('Rendering with darkMode state:', darkMode) // Debug log (commented out to reduce noise)
 
   return (
-    <main className="timer-container" data-state={currentState} data-overtime={isOvertime}>
-      {/* Dark Mode Toggle */}
+    <main className="timer-container" data-state={currentState} data-overtime={isOvertime} data-running={isRunning}>
+      {/* Minimal Dark Mode Toggle */}
       <button
-        className={`dark-mode-toggle ${darkMode ? 'dark-mode-active' : 'light-mode-active'}`}
+        className="dark-mode-toggle-minimal"
         onClick={toggleDarkMode}
         aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-        title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        title={darkMode ? 'Light mode' : 'Dark mode'}
       >
-        <span className="dark-mode-toggle-icon" aria-hidden="true">
-          {darkMode ? '☀️' : '🌙'}
-        </span>
-        <span className="dark-mode-toggle-label">
-          {darkMode ? 'Light' : 'Dark'}
-        </span>
-        <span className="dark-mode-current-state">
-          ({darkMode ? 'Dark Mode' : 'Light Mode'})
-        </span>
+        {darkMode ? '☀️' : '🌙'}
       </button>
-
-      {/* Storage status indicator */}
-      {!isStorageAvailable() && (
-        <div className="storage-warning" role="alert">
-          <span className="warning-icon" aria-hidden="true">⚠️</span>
-          Settings won't be saved - localStorage unavailable
-        </div>
-      )}
 
       {/* Hidden audio element for notifications */}
       <audio ref={audioRef} preload="auto">
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmYfCDuX2e6/dSEELYPN8+NnTw0PVqfq8KVMEgs=" type="audio/wav" />
       </audio>
       
-      <header className="timer-header">
-        <h1 className="timer-title">DopaFlow</h1>
+      {/* Simplified Header */}
+      <header className="timer-header-minimal">
         <div className="timer-state" aria-live="polite">
           {STATE_LABELS[currentState]}
         </div>
-        <div className="session-info">
-          Session {session} • Pomodoro {Math.ceil(session / 4)}
-        </div>
       </header>
 
-      {/* Task Input - Show during work sessions */}
-      {currentState === TIMER_STATES.WORK && (
-        <div className="task-input-section">
-          <label htmlFor="current-task" className="task-label">
-            What are you working on?
-          </label>
+      {/* Visual Mode Indicator */}
+      <div className={`mode-indicator mode-indicator--${currentState}`}>
+        <div className="mode-indicator__icon">
+          {currentState === TIMER_STATES.WORK ? '🎯' : 
+           currentState === TIMER_STATES.SHORT_BREAK ? '☕' : '🌸'}
+        </div>
+        <div className="mode-indicator__text">
+          <div className="mode-indicator__label">
+            {currentState === TIMER_STATES.WORK ? 'Focus Time' : 
+             currentState === TIMER_STATES.SHORT_BREAK ? 'Short Break' : 'Long Break'}
+          </div>
+          <div className="mode-indicator__description">
+            {currentState === TIMER_STATES.WORK ? 'Time to concentrate and get things done' : 
+             currentState === TIMER_STATES.SHORT_BREAK ? 'Take a quick breather and recharge' : 
+             'Longer break - step away and refresh'}
+          </div>
+        </div>
+        <div className="mode-indicator__pulse"></div>
+      </div>
+
+      {/* Simplified Task Input */}
+      {currentState === TIMER_STATES.WORK && !isRunning && (
+        <div className="task-input-minimal">
           <input
             id="current-task"
             type="text"
-            className="task-input"
             value={currentTask}
             onChange={handleTaskChange}
-            placeholder="Enter your focus task..."
+            placeholder="What are you working on?"
             maxLength={100}
-            disabled={false}
           />
-          {currentTask && isRunning && (
-            <div className="current-task-display" aria-live="polite">
-              <span className="task-prefix">Focusing on:</span>
-              <span className="task-text">{currentTask}</span>
-            </div>
-          )}
         </div>
       )}
       
-      <div className="timer-display">
+      {/* Current Task Display */}
+      {currentTask && isRunning && currentState === TIMER_STATES.WORK && (
+        <div className="current-task-minimal" aria-live="polite">
+          <span className="task-text-minimal">{currentTask}</span>
+        </div>
+      )}
+      
+      {/* Timer Display - The Core Focus */}
+      <div className="timer-display-focused">
         <svg 
           className="progress-ring" 
           viewBox="0 0 200 200" 
@@ -884,17 +882,21 @@ function PomodoroTimer() {
         </div>
       </div>
       
-      <div className="timer-controls">
+      {/* Primary Action Button */}
+      <div className="primary-action">
         <button
-          className="btn btn-primary"
+          className="btn-primary-large"
           onClick={isRunning ? pauseTimer : startTimer}
           aria-label={isRunning ? 'Pause timer' : 'Start timer'}
         >
           {isRunning ? 'Pause' : 'Start'}
         </button>
-        
+      </div>
+      
+      {/* Secondary Controls */}
+      <div className="secondary-controls">
         <button
-          className="btn btn-secondary"
+          className="btn-minimal"
           onClick={resetTimer}
           aria-label="Reset current timer"
         >
@@ -902,54 +904,36 @@ function PomodoroTimer() {
         </button>
         
         <button
-          className="btn btn-secondary"
+          className="btn-minimal"
           onClick={skipToNext}
           aria-label={`Skip to ${currentState === TIMER_STATES.WORK ? 'break' : 'work'}`}
         >
-          Skip
+          {currentState === TIMER_STATES.WORK ? 'Break' : 'Focus'}
+        </button>
+        
+        <button
+          className={`btn-minimal ${(!isRunning && currentState === TIMER_STATES.WORK) ? '' : 'btn-minimal--disabled'}`}
+          onClick={start5MinuteSprint}
+          aria-label="5-minute focus"
+          title="Quick 5-minute session"
+          disabled={isRunning || currentState !== TIMER_STATES.WORK}
+        >
+          5 min
         </button>
       </div>
       
-      {/* Micro-Sprint Quick Start Options */}
-      {!isRunning && currentState === TIMER_STATES.WORK && (
-        <div className="micro-sprint-section">
-          <h3 className="micro-sprint-title">Quick Start</h3>
-          <p className="micro-sprint-subtitle">Perfect for ADHD: short, manageable focus sessions</p>
-          
-          <div className="micro-sprint-controls">
-            <button
-              className="btn btn-micro-sprint"
-              onClick={start5MinuteSprint}
-              aria-label="Start 5-minute micro-sprint session"
-            >
-              <span className="sprint-duration">5 min</span>
-              <span className="sprint-label">Micro-Sprint</span>
-            </button>
-            
-            <button
-              className="btn btn-micro-sprint"
-              onClick={start10MinuteSprint}
-              aria-label="Start 10-minute micro-sprint session"
-            >
-              <span className="sprint-duration">10 min</span>
-              <span className="sprint-label">Quick Focus</span>
-            </button>
-          </div>
-        </div>
-      )}
-      
-      <div className="timer-settings">
-        <h3 className="settings-title">Session Lengths</h3>
-        
-        <div className="setting-group">
-          <label className="setting-label" htmlFor="work-duration-slider">
-            Work: <span className="setting-value">{durations[TIMER_STATES.WORK] / 60} min</span>
-          </label>
-          <div className="slider-container">
-            <span className="slider-min">1</span>
+      {/* Settings - Hidden by default, accessible via keyboard */}
+      <details className="settings-collapsed">
+        <summary className="settings-toggle">
+          Settings
+        </summary>
+        <div className="timer-settings-minimal">
+          <div className="setting-group-minimal">
+            <label className="setting-label-minimal">
+              Work: {durations[TIMER_STATES.WORK] / 60} min
+            </label>
             <input
-              id="work-duration-slider"
-              className="setting-slider"
+              className="setting-slider-minimal"
               type="range"
               min="1"
               max="90"
@@ -958,19 +942,14 @@ function PomodoroTimer() {
               onChange={(e) => handleDurationChange(TIMER_STATES.WORK, parseInt(e.target.value))}
               aria-label={`Work session duration: ${durations[TIMER_STATES.WORK] / 60} minutes`}
             />
-            <span className="slider-max">90</span>
           </div>
-        </div>
-        
-        <div className="setting-group">
-          <label className="setting-label" htmlFor="short-break-duration-slider">
-            Short Break: <span className="setting-value">{durations[TIMER_STATES.SHORT_BREAK] / 60} min</span>
-          </label>
-          <div className="slider-container">
-            <span className="slider-min">1</span>
+          
+          <div className="setting-group-minimal">
+            <label className="setting-label-minimal">
+              Break: {durations[TIMER_STATES.SHORT_BREAK] / 60} min
+            </label>
             <input
-              id="short-break-duration-slider"
-              className="setting-slider"
+              className="setting-slider-minimal"
               type="range"
               min="1"
               max="30"
@@ -979,107 +958,58 @@ function PomodoroTimer() {
               onChange={(e) => handleDurationChange(TIMER_STATES.SHORT_BREAK, parseInt(e.target.value))}
               aria-label={`Short break duration: ${durations[TIMER_STATES.SHORT_BREAK] / 60} minutes`}
             />
-            <span className="slider-max">30</span>
           </div>
         </div>
-        
-        <div className="setting-group">
-          <label className="setting-label" htmlFor="long-break-duration-slider">
-            Long Break: <span className="setting-value">{durations[TIMER_STATES.LONG_BREAK] / 60} min</span>
-          </label>
-          <div className="slider-container">
-            <span className="slider-min">5</span>
-            <input
-              id="long-break-duration-slider"
-              className="setting-slider"
-              type="range"
-              min="5"
-              max="60"
-              step="1"
-              value={durations[TIMER_STATES.LONG_BREAK] / 60}
-              onChange={(e) => handleDurationChange(TIMER_STATES.LONG_BREAK, parseInt(e.target.value))}
-              aria-label={`Long break duration: ${durations[TIMER_STATES.LONG_BREAK] / 60} minutes`}
-            />
-            <span className="slider-max">60</span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Affiliate Book Shelf */}
-      <div className="book-shelf">
-        <h3 className="book-shelf-title">Recommended Reading</h3>
-        <p className="book-shelf-subtitle">Books to enhance your focus and productivity</p>
-        
-        <div className="book-grid">
+      </details>
+
+      {/* Minimal Book Recommendations */}
+      <div className="book-recommendations-minimal">
+        <div className="book-items-minimal">
           <a 
             href="https://amzn.to/4l1wdEs" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="book-card"
+            className="book-item-minimal"
             onClick={() => handleAffiliateClick('atomic_habits')}
-            onMouseEnter={() => handleBookHover('atomic_habits', 'hover')}
-            onMouseLeave={() => handleBookHover('atomic_habits', 'unhover')}
+            title="Atomic Habits by James Clear"
           >
-            <div className="book-cover">
-              <div className="book-placeholder">📚</div>
-            </div>
-            <div className="book-info">
-              <h4 className="book-title">Atomic Habits</h4>
-              <p className="book-author">James Clear</p>
-              <p className="book-description">Build tiny changes that lead to remarkable focus improvements</p>
-            </div>
+            <span className="book-emoji">📚</span>
+            <span className="book-title-minimal">Atomic Habits</span>
           </a>
           
           <a 
             href="https://amzn.to/46dtx1P" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="book-card"
+            className="book-item-minimal"
             onClick={() => handleAffiliateClick('deep_work')}
-            onMouseEnter={() => handleBookHover('deep_work', 'hover')}
-            onMouseLeave={() => handleBookHover('deep_work', 'unhover')}
+            title="Deep Work by Cal Newport"
           >
-            <div className="book-cover">
-              <div className="book-placeholder">🧠</div>
-            </div>
-            <div className="book-info">
-              <h4 className="book-title">Deep Work</h4>
-              <p className="book-author">Cal Newport</p>
-              <p className="book-description">Master distraction-free concentration in our connected world</p>
-            </div>
+            <span className="book-emoji">🧠</span>
+            <span className="book-title-minimal">Deep Work</span>
           </a>
           
           <a 
             href="https://amzn.to/4ng5JR6" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="book-card"
+            className="book-item-minimal"
             onClick={() => handleAffiliateClick('adhd_advantage')}
-            onMouseEnter={() => handleBookHover('adhd_advantage', 'hover')}
-            onMouseLeave={() => handleBookHover('adhd_advantage', 'unhover')}
+            title="The ADHD Advantage by Dale Archer"
           >
-            <div className="book-cover">
-              <div className="book-placeholder">⚡</div>
-            </div>
-            <div className="book-info">
-              <h4 className="book-title">The ADHD Advantage</h4>
-              <p className="book-author">Dale Archer</p>
-              <p className="book-description">Transform your ADHD traits into powerful productivity tools</p>
-            </div>
+            <span className="book-emoji">⚡</span>
+            <span className="book-title-minimal">ADHD Advantage</span>
           </a>
         </div>
         
-        <p className="affiliate-disclosure">
-          <small>
-            💡 As an Amazon Associate, we earn from qualifying purchases. 
-            These recommendations support the development of this free timer.
-          </small>
+        <p className="affiliate-note-minimal">
+          💡 <small>As Amazon Associate, purchases support this free timer</small>
         </p>
       </div>
       
       {/* Status announcements for screen readers */}
       <div 
-        className="timer-status" 
+        className="timer-status-minimal" 
         role="status" 
         aria-live="polite"
         aria-atomic="true"
@@ -1087,35 +1017,10 @@ function PomodoroTimer() {
         {statusMessage}
       </div>
       
-      {/* Keyboard shortcuts help */}
+      {/* Minimal keyboard help */}
       <div className="sr-only">
-        Keyboard shortcuts: Space to start/pause, R to reset, S to skip, D for dark mode, Shift+R to reset theme if stuck, 5 for 5-minute sprint
+        Keyboard shortcuts: Space to start/pause, R to reset, S to skip, D for dark mode
       </div>
-      
-      {/* Visible keyboard shortcuts indicator */}
-      <div className="keyboard-shortcuts">
-        <kbd>Space</kbd> Start/Pause • <kbd>R</kbd> Reset • <kbd>S</kbd> Skip • <kbd>D</kbd> Dark Mode
-        {!isRunning && currentState === TIMER_STATES.WORK && (
-          <span> • <kbd>5</kbd> Quick Sprint</span>
-        )}
-        <span style={{opacity: 0.7}}> • <kbd>Shift+R</kbd> Reset Theme</span>
-      </div>
-
-      {/* Loading indicator while data loads */}
-      {!isDataLoaded && (
-        <div className="loading-overlay">
-          <div className="loading-spinner" aria-label="Loading your saved data...">
-            <div className="sr-only">Loading your saved preferences and tasks...</div>
-          </div>
-        </div>
-      )}
-
-      {/* Save indicator */}
-      {saveIndicator && (
-        <div className={`save-indicator show`} role="status" aria-live="polite">
-          {saveIndicator}
-        </div>
-      )}
     </main>
   )
 }

@@ -28,6 +28,10 @@ const safeTrack = (eventName, properties = {}) => {
 
   try {
     track(eventName, enhancedProps);
+    // Debug: Log tracking events in development
+    if (import.meta.env.DEV) {
+      console.log("📊 Analytics Event:", eventName, enhancedProps);
+    }
   } catch (error) {
     // Silently fail if tracking fails - don't break the app
     if (import.meta.env.DEV) {
@@ -60,12 +64,19 @@ export const trackTimerComplete = (
   sessionNumber,
   wasOvertime = false
 ) => {
-  track("timer_complete", {
+  const eventData = {
     timer_state: state,
     session_number: sessionNumber,
     was_overtime: wasOvertime,
     timestamp: new Date().toISOString(),
-  });
+  };
+
+  track("timer_complete", eventData);
+
+  // Debug: Log tracking events in development
+  if (import.meta.env.DEV) {
+    console.log("📊 Analytics Event:", "timer_complete", eventData);
+  }
 };
 
 export const trackTimerReset = (state, timeRemaining, totalDuration) => {
