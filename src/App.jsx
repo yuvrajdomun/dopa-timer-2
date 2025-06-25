@@ -157,11 +157,52 @@ function PomodoroTimer() {
     trackFeatureUsage('affiliate_click', bookId)
   }
   
-  // Track book card hover for engagement analysis
-  const handleBookHover = (bookId, action) => {
-    trackFeatureUsage(`book_${action}`, bookId)
-  }
+
   
+  // Create a pleasant notification sound using Web Audio API
+  const playNotificationSound = useCallback(() => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      
+      // Create a pleasant chime sound
+      const createTone = (frequency, startTime, duration) => {
+        const oscillator = audioContext.createOscillator()
+        const gainNode = audioContext.createGain()
+        
+        oscillator.connect(gainNode)
+        gainNode.connect(audioContext.destination)
+        
+        oscillator.frequency.setValueAtTime(frequency, startTime)
+        oscillator.type = 'sine'
+        
+        // Create a gentle fade in/out
+        gainNode.gain.setValueAtTime(0, startTime)
+        gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.1)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
+        
+        oscillator.start(startTime)
+        oscillator.stop(startTime + duration)
+        
+        return oscillator
+      }
+      
+      // Play a pleasant 3-note chime
+      const currentTime = audioContext.currentTime
+      createTone(523.25, currentTime, 0.5)        // C5
+      createTone(659.25, currentTime + 0.2, 0.5)  // E5
+      createTone(783.99, currentTime + 0.4, 0.8)  // G5
+      
+    } catch (error) {
+      // Fallback to simple beep if Web Audio API fails
+      console.warn('Web Audio API not available:', error.message)
+      if (audioRef.current) {
+        audioRef.current.play().catch(() => {
+          // Silently fail if audio can't play
+        })
+      }
+    }
+  }, [])
+
   // Handle timer completion with comprehensive tracking
   const handleTimerComplete = useCallback(() => {
     setIsRunning(false)
@@ -169,16 +210,12 @@ function PomodoroTimer() {
     // Track timer completion
     trackTimerComplete(currentState, session, isOvertime)
     
-    // Play notification sound (if audio is enabled)
-    if (audioRef.current) {
-      audioRef.current.play().catch(() => {
-        // Silently fail if audio can't play
-      })
-    }
+    // Play pleasant notification sound
+    playNotificationSound()
     
     // Provide haptic feedback on mobile
     if ('vibrate' in navigator) {
-      navigator.vibrate(100)
+      navigator.vibrate([100, 50, 100]) // Double vibration for completion
       trackFeatureUsage('haptic_feedback')
     }
     
@@ -305,7 +342,6 @@ function PomodoroTimer() {
   }
 
   const start5MinuteSprint = () => startMicroSprint(5)
-  const start10MinuteSprint = () => startMicroSprint(10)
   
   // Debug function to reset theme if stuck
   const resetTheme = () => {
@@ -1017,6 +1053,23 @@ function PomodoroTimer() {
         {statusMessage}
       </div>
       
+      {/* Save indicator */}
+      <div className={`save-indicator ${saveIndicator ? 'show' : ''}`} aria-live="polite">
+        {saveIndicator}
+      </div>
+      
+      {/* Test audio button (development only) */}
+      {import.meta.env.DEV && (
+        <button
+          className="btn-minimal"
+          onClick={playNotificationSound}
+          style={{ position: 'fixed', bottom: '10px', left: '10px', fontSize: '12px', opacity: 0.7 }}
+          title="Test notification sound"
+        >
+          🔔 Test Sound
+        </button>
+      )}
+
       {/* Minimal keyboard help */}
       <div className="sr-only">
         Keyboard shortcuts: Space to start/pause, R to reset, S to skip, D for dark mode
